@@ -22,14 +22,20 @@
 :root {
   --bg: #161719;
   --fg: #c5c8c6;
+  --dim: #7a7e82;
   --user: #87c38a;
   --dir: #85befd;
   --bright: #ffffff;
+  --yellow: #f0c674;
+  --aqua: #8abeb7;
+  --purple: #b294bb;
+  --orange: #de935f;
 
   --fs: max(13px, 3vmin);              /* phones: 3vmin as before, never below 13px */
   --lh: 1.034;                         /* line height, as before (3.1vmin / 3vmin) */
   --row: calc(var(--fs) * var(--lh));  /* height of one terminal line */
   --pad: 12px;
+  --bar: calc(var(--row) + 6px);       /* height of the tmux status bar */
 
   --banner-cols: 66;                   /* widest line of the banner */
   --face-cols: 39;                     /* widest line of the face */
@@ -41,6 +47,10 @@
     --lh: 1.04;                        /* 2.6vmin / 2.5vmin, as before */
     --pad: max(8px, 0.6vmin);
   }
+}
+
+@media (pointer: coarse) {
+  :root { --bar: calc(var(--row) + 22px); }   /* bigger tap targets on touch screens */
 }
 
 html {
@@ -57,15 +67,17 @@ html {
 body {
   margin: 0;
   padding: var(--pad);
+  padding-bottom: calc(var(--bar) + var(--row) + env(safe-area-inset-bottom, 0px));
 }
 
-p, h1, h2, ul, li, pre {
+p, h1, h2, ul, ol, li, pre {
   margin: 0;
   padding: 0;
   font: inherit;
 }
-ul { list-style: none; }
+ul, ol { list-style: none; }
 b, strong { font-weight: 700; }
+cite { font-style: normal; }
 pre { white-space: pre; }
 
 a { color: inherit; }
@@ -145,12 +157,150 @@ a:focus-visible { outline: 1px solid var(--dir); outline-offset: 2px; }
   to { opacity: 1; }
 }
 
-/* while js/terminal.js replays the session, steps appear one by one */
-.js .step:not(.shown),
-.js .out:not(.shown),
-.js .prompt-end:not(.shown) {
-  display: none;
+/* ---------- activity log: date, tag, text; wrapped lines stay under the text ---------- */
+.log-line { padding-left: 19ch; text-indent: -19ch; }
+.log-date,
+.log-tag { display: inline-block; text-indent: 0; }
+.log-date { width: 10ch; }   /* + one space = 11 columns */
+.log-tag { width: 7ch; }     /* + one space = 8 columns */
+.tag-pub { color: var(--user); }
+.tag-conf,
+.tag-talk { color: var(--dir); }
+.tag-job { color: var(--yellow); }
+.tag-edu { color: var(--aqua); }
+.tag-award { color: var(--purple); }
+.tag-post { color: var(--orange); }
+.tag-news { color: var(--bright); }
+
+/* ---------- publications ---------- */
+.pub + .pub { margin-top: var(--row); }
+.pub p { padding-left: 4ch; }
+.pub .pub-head { padding-left: 0; }
+.pub-n { color: var(--user); }
+.pub-year { color: var(--dir); }
+.pub-title { color: var(--bright); }
+.me { color: var(--user); font-weight: 700; }
+.file-head { margin-bottom: var(--row); }
+
+/* ---------- shell output ---------- */
+.keep { white-space: pre-wrap; }
+.out > * + .file-head { margin-top: var(--row); }
+.comment { color: var(--dim); }
+mark { background: var(--dir); color: var(--bg); }
+.bib { white-space: pre-wrap; overflow-wrap: anywhere; }
+.help {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 3ch;
 }
+.help .k { color: var(--bright); }
+.help .wide { grid-column: 1 / -1; }
+.ls-dir { color: var(--dir); font-weight: 700; }
+
+/* ---------- the live prompt ---------- */
+.js .source { display: none; }
+.screen .line { overflow-wrap: anywhere; }
+.input-line {
+  display: flex;
+  align-items: baseline;
+  scroll-margin-bottom: calc(var(--bar) + 2 * var(--row));
+}
+.input-line .ps1 { flex: none; }
+.input-wrap {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0.5em;
+}
+.cmd-input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  line-height: inherit;
+  caret-color: var(--bright);
+}
+.cmd-input::placeholder { color: var(--dim); opacity: 1; }
+
+/* touch screens with small text: draw the input at 16px and scale it down, so iOS doesn't zoom in on focus */
+.zoomfix .input-line { align-items: flex-start; }
+.zoomfix .input-wrap { height: var(--row); }
+.zoomfix .cmd-input {
+  font-size: 16px;
+  width: calc(100% / var(--input-scale));
+  height: calc(var(--row) / var(--input-scale));
+  line-height: calc(var(--row) / var(--input-scale));
+  transform: scale(var(--input-scale));
+  transform-origin: 0 0;
+}
+
+/* ---------- tmux status bar = the tabs ---------- */
+.tmux {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5ch;
+  height: calc(var(--bar) + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  padding: 0 var(--pad) env(safe-area-inset-bottom, 0px);
+  background: var(--user);
+  color: var(--bg);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tmux > * {
+  display: flex;
+  align-items: center;
+}
+.tmux a {
+  padding: 0 0.5ch;
+  color: inherit;
+  text-decoration: none;
+}
+.tmux a:hover { text-decoration: underline; }
+.tmux a:focus-visible { outline: 1px solid var(--bg); outline-offset: -3px; }
+.tmux a[aria-current="page"] { font-weight: 700; }
+.tmux a[aria-current="page"]::after { content: "*"; }
+.tmux a.last::after { content: "-"; }
+.tmux .session { padding-right: 0.5ch; }
+.tmux .session.armed { background: var(--bg); color: var(--user); padding-left: 0.5ch; }
+.tmux .status-right { margin-left: auto; gap: 1ch; }
+@media (max-width: 599px) {
+  .tmux .host,
+  .tmux .clock-date { display: none; }
+}
+@media (max-width: 399px) {
+  .tmux .session { display: none; }
+}
+
+/* ---------- plain version (no JavaScript): the source shown as one session ---------- */
+.source .log li { padding-left: 19ch; text-indent: -19ch; }
+.source .log li::before {
+  content: attr(data-date) " [" attr(data-tag) "]";
+  display: inline-block;
+  width: 19ch;
+  text-indent: 0;
+  color: var(--dim);
+}
+.source .pubs li { padding-left: 6ch; text-indent: -6ch; }
+.source .pubs li + li { margin-top: var(--row); }
+.source .pubs li::before {
+  content: "[" attr(data-n) "]";
+  display: inline-block;
+  width: 6ch;
+  text-indent: 0;
+  color: var(--user);
+}
+.source cite { color: var(--bright); }
 
 @media (prefers-reduced-motion: reduce) {
   .cmd.typing::after,

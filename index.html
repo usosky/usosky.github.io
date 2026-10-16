@@ -23,8 +23,9 @@
 <meta property="og:image:alt" content="Terminal window with the banner “Let’s Do Science” and Denis Usosky’s name">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-96.png" type="image/png" sizes="96x96">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <link rel="preload" href="fonts/inconsolata-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -32,7 +33,7 @@
 <link rel="stylesheet" href="css/terminal.css">
 
 <script>
-  // Hide the session until js/terminal.js replays it — but show it anyway if that script never runs.
+  // js/terminal.js turns the content below into tabs with a live prompt. If it never runs, show the plain version.
   document.documentElement.classList.add('js');
   setTimeout(function () { if (!window.termStarted) document.documentElement.classList.remove('js'); }, 3000);
 </script>
@@ -59,39 +60,42 @@
   <h1 class="sr-only">Denis Usosky, PhD — CCUS researcher and chemist</h1>
 
   <!--
-    The terminal session, top to bottom. Each <section class="step"> is one command:
-      .cmd = the command that gets typed out
-      .out = what it prints
-    Edit the text freely; keep the tags.
+    All the content of the site lives in this block.
+    Without JavaScript it shows as one long terminal session; with JavaScript,
+    js/terminal.js turns it into the tabs 0:about, 1:activity, 2:pubs and a live prompt.
+    Edit the text freely; keep the tags and the data-* attributes.
   -->
+  <div class="source">
 
-  <section class="step">
-    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">banner</span></p>
-<pre class="out banner" role="img" aria-label="Let's Do Science">
+    <!-- ===================== 0:about ===================== -->
+    <div id="about">
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">banner</span></p>
+<pre class="out banner" data-src="banner" role="img" aria-label="Let's Do Science">
    __      _   _         ___        __      _
   / /  ___| |_( )__     /   \___   / _\ ___(_) ___ _ __   ___ ___
  / /  / _ \ __|/ __|   / /\ / _ \  \ \ / __| |/ _ \ '_ \ / __/ _ \
 / /__|  __/ |_ \__ \  / /_// (_) | _\ \ (__| |  __/ | | | (_|  __/
 \____/\___|\__||___/ /___,' \___/  \__/\___|_|\___|_| |_|\___\___|</pre>
-  </section>
+      </section>
 
-  <section class="step">
-    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cat welcome.txt</span></p>
-    <div class="out">
-      <p>Welcome to my terminal portfolio!</p>
-      <p>I am Dr. <strong>Denis Usosky</strong>, CCUS Researcher, Chemist, and Open-Source Enthusiast.</p>
-      <p>On this page, you can find my information.</p>
-      <p>Open to research collaborations - feel free to reach out.</p>
-    </div>
-  </section>
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cat welcome.txt</span></p>
+        <div class="out" data-src="welcome.txt">
+          <p>Welcome to my terminal portfolio!</p>
+          <p>I am Dr. <strong>Denis Usosky</strong>, CCUS Researcher, Chemist, and Open-Source Enthusiast.</p>
+          <p>On this page, you can find my information.</p>
+          <p>Open to research collaborations - feel free to reach out.</p>
+        </div>
+      </section>
 
-  <section class="step">
-    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cd about</span></p>
-  </section>
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cd about</span></p>
+      </section>
 
-  <section class="step">
-    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/about</span></b>$</span> <span class="cmd">cat aboutme.txt</span></p>
-    <div class="out about">
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/about</span></b>$</span> <span class="cmd">cat aboutme.txt</span></p>
+        <div class="out about" data-src="aboutme.txt">
 <pre class="face" role="img" aria-label="ASCII smiley face">
              @@@@@@@@@@@@@
         @@@@               @@@@
@@ -109,27 +113,101 @@
         @@@                  @@@ @@
          @|  @@@@@@@@@@@@@@@@   @@
          @|                      @@</pre>
-      <div class="card">
-        <p>💼 Summary display:</p>
-        <p aria-hidden="true">-----------</p>
-        <h2>📌 ABOUT</h2>
-        <ul>
-          <li>😎 Denis Usosky</li>
-          <li>🎓 <a href="https://scholar.google.com/citations?user=mvp4SJ4AAAAJ&amp;hl=en" target="_blank" rel="noopener">GoogleScholar</a></li>
-          <li>🆔 <a href="https://orcid.org/0000-0002-6245-5110" target="_blank" rel="noopener">Orcid</a></li>
-        </ul>
-        <p aria-hidden="true">-----------</p>
-        <h2>📌 CONTACT</h2>
-        <ul>
-          <li>📩 <a href="mailto:portfolio.false961@passmail.net">Email</a></li>
-          <li>🌐 <a href="https://www.linkedin.com/in/denisusosky/" target="_blank" rel="noopener">LinkedIn</a></li>
-          <li>🗨️ <a href="https://matrix.to/#/@usosky:matrix.org" target="_blank" rel="noopener">Matrix</a></li>
-        </ul>
-      </div>
+          <div class="card">
+            <p>💼 Summary display:</p>
+            <p aria-hidden="true">-----------</p>
+            <h2>📌 ABOUT</h2>
+            <ul>
+              <li>😎 Denis Usosky</li>
+              <li>🎓 <a href="https://scholar.google.com/citations?user=mvp4SJ4AAAAJ&amp;hl=en" target="_blank" rel="noopener">GoogleScholar</a></li>
+              <li>🆔 <a href="https://orcid.org/0000-0002-6245-5110" target="_blank" rel="noopener">Orcid</a></li>
+            </ul>
+            <p aria-hidden="true">-----------</p>
+            <h2>📌 CONTACT</h2>
+            <ul>
+              <li>📩 <a href="mailto:portfolio.false961@passmail.net">Email</a></li>
+              <li>🌐 <a href="https://www.linkedin.com/in/denisusosky/" target="_blank" rel="noopener">LinkedIn</a></li>
+              <li>🗨️ <a href="https://matrix.to/#/@usosky:matrix.org" target="_blank" rel="noopener">Matrix</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
-  </section>
 
-  <p class="line prompt-end"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/about</span></b>$</span> <span class="cursor" aria-hidden="true"></span></p>
+    <!-- ===================== 1:activity ===================== -->
+    <div id="activity">
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/activity</span></b>$</span> <span class="cmd">cat activity.log</span></p>
+        <!--
+          One <li> per entry, oldest first: add new entries at the bottom.
+          data-date: YYYY, YYYY-MM or YYYY-MM-DD
+          data-tag:  PUB, CONF, TALK, POST, JOB, EDU, AWARD or NEWS
+          For a LinkedIn post: <li data-date="2026-11-03" data-tag="POST"><a href="https://www.linkedin.com/posts/...">one-line summary</a></li>
+        -->
+        <ol class="out log" data-src="activity.log">
+          <li data-date="2018" data-tag="CONF">Graphene–CuO ammonia gas sensor at IUMRS-ICEM (Korea) and Graphene 2018 (Germany)</li>
+          <li data-date="2021-11" data-tag="PUB">J. Chem. Eng. Data: <a href="https://doi.org/10.1021/acs.jced.1c00573">isobaric VLE of formic acid + NMP at 50, 20 and 10 kPa, modeled with NRTL-HOC and PC-SAFT</a></li>
+          <li data-date="2022" data-tag="CONF">Formic acid + NMP phase equilibria at KSIEC Spring and the KIST Workshop (Korea)</li>
+          <li data-date="2022" data-tag="AWARD">KT&amp;G Scholarship</li>
+          <li data-date="2023" data-tag="CONF">1-Methylpyrrolidine + 1-butylimidazole binary system at KSIEC Spring (Korea)</li>
+          <li data-date="2023" data-tag="CONF">VLE of 1-methylpyrrolidine + 1-butylimidazole at AOC-GSC8 (New Zealand)</li>
+          <li data-date="2023-10" data-tag="PUB">J. Ind. Eng. Chem.: <a href="https://doi.org/10.1016/j.jiec.2023.06.030">vapor-liquid equilibria in the 1-methylpyrrolidine + 1-butylimidazole system</a></li>
+          <li data-date="2024-03" data-tag="PUB">Joule: <a href="https://doi.org/10.1016/j.joule.2024.01.003">CO2-hydrogenated formic acid, from process development to a pilot plant</a></li>
+          <li data-date="2024-06" data-tag="PUB">STAR Protocols: <a href="https://doi.org/10.1016/j.xpro.2024.103093">how to operate a large-scale CO2 hydrogenation process for formic acid</a></li>
+          <li data-date="2024" data-tag="AWARD">KT&amp;G Scholarship</li>
+          <li data-date="2024-08" data-tag="EDU">PhD at UST / KIST School: thermodynamic modeling and distillation design for CO2-hydrogenated formic acid</li>
+          <li data-date="2025-06" data-tag="JOB">R&amp;D Scientist at TriMass, Seoul: carbon-negative cement and green methanol</li>
+          <li data-date="2026-01" data-tag="JOB">MSCA Postdoctoral Fellow (AuSpire) at IDOM, Bilbao, with Aurecon, Melbourne</li>
+          <li data-date="2026-08" data-tag="PUB">J. Environ. Chem. Eng.: <a href="https://doi.org/10.1016/j.jece.2026.123204">thermodynamically guided formic acid recovery in reactive CO2 capture-conversion</a></li>
+          <li data-date="2026" data-tag="PUB">ChemRxiv preprint: direct air, ocean-based and post-combustion CO2 capture compared as eSAF feedstock</li>
+          <li data-date="2026-10-16" data-tag="NEWS">This site gets tabs, a live prompt, this log and a publication list</li>
+          <!-- sync:activity (new publications are added above this line automatically) -->
+        </ol>
+      </section>
+    </div>
+
+    <!-- ===================== 2:pubs ===================== -->
+    <div id="pubs">
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/pubs</span></b>$</span> <span class="cmd">cat papers.txt</span></p>
+        <!--
+          Journal papers and preprints, newest first. data-n is the number shown (and used by `cite n`).
+          A weekly GitHub Action adds new papers linked to the ORCID iD (see tools/sync_pubs.py);
+          it only looks at papers published after data-sync-since.
+        -->
+        <ol class="out pubs" data-src="papers.txt" data-sync-since="2026-09-01">
+          <!-- sync:papers (new papers are added below this line automatically) -->
+          <li data-n="6"><span class="authors">Denis Usosky, Valery Novoa Colas, Ana García Algaba, Juan Alberto Martín Martín, Abdul Rahim, Aaron Belbasis, Juan Carlos Latasa López</span>. <cite>From capture to utilization: a cross-pathway comparison of next generation direct air, ocean-based, and post-combustion CO2 capture for eSAF feedstock</cite>. <span class="venue">ChemRxiv (preprint)</span>, <span class="year">2026</span>.</li>
+          <li data-n="5"><span class="authors">Denis Usosky, Kwang-Deog Jung, Ung Lee, Changsoo Kim, Kyeongsu Kim</span>. <cite>Thermodynamically guided process design for formic acid recovery in reactive CO2 capture-conversion system</cite>. <span class="venue">J. Environ. Chem. Eng.</span>, <span class="year">2026</span>. <a href="https://doi.org/10.1016/j.jece.2026.123204">doi:10.1016/j.jece.2026.123204</a></li>
+          <li data-n="4"><span class="authors">Changsoo Kim, Kwangho Park, Hyeonggeon Lee, Jaehyung Im, Denis Usosky, Kyungjae Tak, Damdae Park, Wonsuk Chung, Donggu Han, Jieun Yoon, Heewon Lee, Hyunyoung Kim, Margareth, Juyeong Jung, Da Hye Won, Chun-Jae Yoo, Ki Bong Lee, Kwang-Deog Jung, Ung Lee</span>. <cite>Accelerating the net-zero economy with CO2-hydrogenated formic acid production: Process development and pilot plant demonstration</cite>. <span class="venue">Joule</span>, <span class="year">2024</span>. <a href="https://doi.org/10.1016/j.joule.2024.01.003">doi:10.1016/j.joule.2024.01.003</a></li>
+          <li data-n="3"><span class="authors">Jihoon Bae, Kwangho Park, Denis Usosky, Kwang-Deog Jung, Ung Lee, Changsoo Kim</span>. <cite>Protocol to operate a large-scale CO2 hydrogenation process for formic acid production</cite>. <span class="venue">STAR Protocols</span>, <span class="year">2024</span>. <a href="https://doi.org/10.1016/j.xpro.2024.103093">doi:10.1016/j.xpro.2024.103093</a></li>
+          <li data-n="2"><span class="authors">Denis Usosky, Vladyslav Aharkov, Kyung Rok Lee, Kwang-Deog Jung, Ung Lee</span>. <cite>Vapor-liquid equilibria in the 1-methylpyrrolidine + 1-butylimidazole binary system: Experimental measurements and theoretical modelling</cite>. <span class="venue">J. Ind. Eng. Chem.</span>, <span class="year">2023</span>. <a href="https://doi.org/10.1016/j.jiec.2023.06.030">doi:10.1016/j.jiec.2023.06.030</a></li>
+          <li data-n="1"><span class="authors">Denis Usosky, Kyeongsu Kim, Jong-Ho Moon, Kwang-Deog Jung, Ung Lee</span>. <cite>Isobaric Vapor–Liquid Equilibria for the Formic Acid–N-methyl-2-pyrrolidone Binary System at 50, 20, and 10 kPa and Modeling Using the NRTL-HOC and PC-SAFT Models</cite>. <span class="venue">J. Chem. Eng. Data</span>, <span class="year">2021</span>. <a href="https://doi.org/10.1021/acs.jced.1c00573">doi:10.1021/acs.jced.1c00573</a></li>
+        </ol>
+      </section>
+
+      <section class="step">
+        <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/pubs</span></b>$</span> <span class="cmd">cat proceedings.txt</span></p>
+        <!-- Conference talks and posters, newest first. -->
+        <ol class="out pubs" data-src="proceedings.txt">
+          <li data-n="6"><span class="authors">Denis Usosky, Vladyslav Aharkov, Kyung Rok Lee, Kwang-Deog Jung, Ung Lee</span>. <cite>VLE in the 1-methylpyrrolidine + 1-butylimidazole binary system: Experimental measurements and theoretical modelling</cite>. <span class="venue">AOC-GSC8, New Zealand</span>, <span class="year">2023</span>.</li>
+          <li data-n="5"><span class="authors">Denis Usosky, Vladyslav Aharkov, Kyung Rok Lee, Kwang-Deog Jung, Ung Lee</span>. <cite>Comprehensive study of the 1-Methylpyrrolidine + 1-Butylimidazole Binary System: Physicochemical properties, Isobaric Vapor-Liquid Equilibrium, and correlation via NRTL HOC, UNIQUAC, Van Laar, Wilson models</cite>. <span class="venue">KSIEC Spring, Korea</span>, <span class="year">2023</span>.</li>
+          <li data-n="3-4"><span class="authors">Denis Usosky, Kwang-Deog Jung</span>. <cite>Isobaric VLE for the formic acid + N-methyl-2-pyrrolidone binary system at 50, 20, and 10 kPa and modeling using the NRTL-HOC and PC-SAFT models</cite>. <span class="venue">KSIEC Spring and KIST Workshop, Korea</span>, <span class="year">2022</span>.</li>
+          <li data-n="1-2"><span class="authors">Oleksandr Tsymbalenko, Denis Usosky, Nam Yun Sik, Kang Bong Lee</span>. <cite>Chemiresistive ammonia gas sensor based on graphene with CuO nanoparticles</cite>. <span class="venue">IUMRS-ICEM, Korea, and Graphene 2018, Germany</span>, <span class="year">2018</span>.</li>
+        </ol>
+      </section>
+    </div>
+
+    <p class="line prompt-end"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/pubs</span></b>$</span> <span class="cursor" aria-hidden="true"></span></p>
+  </div>
 </main>
+
+<nav class="tmux" aria-label="Sections">
+  <span class="session">[usosky]</span>
+  <a class="win" href="#about">0:about</a>
+  <a class="win" href="#activity">1:activity</a>
+  <a class="win" href="#pubs">2:pubs</a>
+  <span class="status-right"><span class="host">"terminal.usosky"</span> <span class="clock" title="Local time in Bilbao, Spain"></span></span>
+</nav>
 </body>
 </html>

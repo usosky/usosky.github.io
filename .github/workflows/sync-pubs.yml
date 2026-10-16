@@ -1,0 +1,36 @@
+# Adds new publications linked to the ORCID iD to the site, every Monday.
+# Runs tools/sync_pubs.py and commits index.html when something was added.
+# To run it now: Actions tab → "Sync publications" → "Run workflow".
+name: Sync publications
+
+on:
+  schedule:
+    - cron: "23 5 * * 1"   # Mondays, 05:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Look for new publications
+        run: python3 tools/sync_pubs.py
+
+      - name: Commit, push and rebuild the site if index.html changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Nothing new."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Add new publications from ORCID/Crossref" -- index.html
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will rebuild on its own."
