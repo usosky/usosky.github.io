@@ -1,0 +1,168 @@
+/*
+  usr/usosky — terminal look.
+  Colours, font and sizes match the original single-file version. Sizes still
+  scale with the window (vmin) as before, with a floor so phones stay readable.
+*/
+
+@font-face {
+  font-family: "Inconsolata";
+  src: url("../fonts/inconsolata-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inconsolata";
+  src: url("../fonts/inconsolata-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #161719;
+  --fg: #c5c8c6;
+  --user: #87c38a;
+  --dir: #85befd;
+  --bright: #ffffff;
+
+  --fs: max(13px, 3vmin);              /* phones: 3vmin as before, never below 13px */
+  --lh: 1.034;                         /* line height, as before (3.1vmin / 3vmin) */
+  --row: calc(var(--fs) * var(--lh));  /* height of one terminal line */
+  --pad: 12px;
+
+  --banner-cols: 66;                   /* widest line of the banner */
+  --face-cols: 39;                     /* widest line of the face */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs: max(12px, 2.5vmin);
+    --lh: 1.04;                        /* 2.6vmin / 2.5vmin, as before */
+    --pad: max(8px, 0.6vmin);
+  }
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Inconsolata", monospace;
+  font-size: var(--fs);
+  line-height: var(--lh);
+  font-weight: 400;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: var(--pad);
+}
+
+p, h1, h2, ul, li, pre {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+ul { list-style: none; }
+b, strong { font-weight: 700; }
+pre { white-space: pre; }
+
+a { color: inherit; }
+a:hover { color: var(--bright); }
+a:focus-visible { outline: 1px solid var(--dir); outline-offset: 2px; }
+
+.user { color: var(--user); }
+.dir { color: var(--dir); }
+.ps1 { white-space: nowrap; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* one blank line after each command's output, as before */
+.out { margin-bottom: var(--row); }
+
+.banner {
+  color: var(--bright);
+  /* as big as the text, but never wider than the screen */
+  font-size: min(1em, calc((100vw - 2 * var(--pad) - 12px) / (var(--banner-cols) * 0.5)));
+  line-height: var(--lh);
+  overflow-x: auto;
+}
+
+/* face and summary side by side; the summary starts on the face's 3rd line, as before */
+.about {
+  --face-fs: min(var(--fs), calc((100vw - 2 * var(--pad) - 12px - 13 * var(--fs)) / (var(--face-cols) * 0.5)));
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  align-items: start;
+  column-gap: calc(var(--face-fs) * 2.5);   /* 5 columns, as before */
+  margin-top: var(--row);                    /* blank line above the face, as before */
+}
+.face {
+  font-size: var(--face-fs);
+  line-height: var(--lh);
+}
+.card { padding-top: calc(2 * var(--face-fs) * var(--lh)); }
+.card p,
+.card h2,
+.card li {
+  display: block;
+  height: var(--row);
+  white-space: nowrap;
+}
+
+/* very narrow phones: slightly smaller text, face above the summary */
+@media (max-width: 359px) {
+  :root { --fs: 12px; }
+  .about {
+    --face-fs: min(var(--fs), calc((100vw - 2 * var(--pad) - 12px) / (var(--face-cols) * 0.5)));
+    grid-template-columns: auto;
+    row-gap: var(--row);
+  }
+  .card { padding-top: 0; }
+}
+
+/* blinking cursor while a command is typed, and at the final prompt */
+.cmd.typing::after,
+.cursor::after {
+  content: "|";
+  color: var(--bright);
+  animation: blink 500ms linear infinite alternate;
+}
+@keyframes blink {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* while js/terminal.js replays the session, steps appear one by one */
+.js .step:not(.shown),
+.js .out:not(.shown),
+.js .prompt-end:not(.shown) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmd.typing::after,
+  .cursor::after { animation: none; }
+}
+
+/* scrollbars, as before (Chrome, Edge, Safari) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { border-radius: 10px; box-shadow: inset 0 0 1px white; }
+::-webkit-scrollbar-thumb { border-radius: 10px; box-shadow: 0 0 0 1px white; }
+
+/* Firefox equivalent */
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-color: var(--fg) var(--bg); scrollbar-width: thin; }
+}
