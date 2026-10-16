@@ -1,229 +1,135 @@
 <!DOCTYPE html>
-<html lang=”en”>
+<html lang="en">
 <head>
-	<meta charset=”UTF-8″>
-    <meta name=”viewport” content=”width=device-width, initial-scale=1.0″>
-	<meta http-equiv=”X-UA-Compatible” content=”ie=edge”>
-    <title>usr/usosky</title>
-    <style>
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata&display=swap");
-:root {
-  --cursor-visibility: hidden; 
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>usr/usosky — Denis Usosky, PhD</title>
+<meta name="description" content="CCUS researcher and chemist: thermodynamic modeling, phase equilibria and process simulation. Open to research collaborations.">
+<meta name="author" content="Denis Usosky">
+<meta name="theme-color" content="#161719">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://usosky.github.io/">
 
-html,
-body {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  font-family: "Inconsolata", monospace;
-  font-size: 3vmin;
-  line-height: 3.1vmin;
-  font-weight: normal; 
-}
+<!-- Link previews (LinkedIn, messengers, Matrix...) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="usr/usosky">
+<meta property="og:url" content="https://usosky.github.io/">
+<meta property="og:title" content="usr/usosky — Denis Usosky, PhD">
+<meta property="og:description" content="CCUS researcher and chemist: thermodynamic modeling, phase equilibria and process simulation. Open to research collaborations.">
+<meta property="og:image" content="https://usosky.github.io/img/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Terminal window with the banner “Let’s Do Science” and Denis Usosky’s name">
+<meta name="twitter:card" content="summary_large_image">
 
-body {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-#content {
-  min-width: 82vmin;
-  min-height: 82vmin; 
-}
+<link rel="preload" href="fonts/inconsolata-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inconsolata-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/terminal.css">
 
-pre.banner {
-  color: white;
-  font-size: 2vmin;
-  line-height: 2.2vmin;
-  white-space: pre;
-  margin: 20px;
-}
+<script>
+  // Hide the session until js/terminal.js replays it — but show it anyway if that script never runs.
+  document.documentElement.classList.add('js');
+  setTimeout(function () { if (!window.termStarted) document.documentElement.classList.remove('js'); }, 3000);
+</script>
+<script src="js/terminal.js" defer></script>
 
-::-webkit-scrollbar {
-  width: 10px; 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Denis Usosky",
+  "honorificSuffix": "PhD",
+  "jobTitle": "CCUS Researcher",
+  "url": "https://usosky.github.io/",
+  "sameAs": [
+    "https://orcid.org/0000-0002-6245-5110",
+    "https://scholar.google.com/citations?user=mvp4SJ4AAAAJ",
+    "https://www.linkedin.com/in/denisusosky/"
+  ]
 }
-
-::-webkit-scrollbar-track {
-  border-radius: 10px;
-  box-shadow: inset 0 0 1px white; 
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px white; 
-}
-
-.cursor, #ps1_test:after, #std_out_baner:after, #cd2:after, #ps1_01:after, #std_out_01:after, #cd:after, #ps1_02:after, #cat:after,  #ps1_in1:after, #std_in1:after, #ps1_03:after, #ps1_04:after {
-  visibility: var(--cursor-visibility);
-  content: "|";
-  overflow: hidden;
-  color: white;
-  animation: blink 500ms linear infinite alternate; 
-}
-
-@keyframes blink {
-  0% {
-    opacity: 0; 
-  }
-  100% {
-    opacity: 1; 
-  } 
-}
-
-@media only screen and (min-width: 768px) {
-  body {
-    font-size: 2.5vmin;
-    line-height: 2.6vmin; 
-  }
-  #content {
-    min-width: 60vmin; 
-  } 
-}
-
-body {
-  background: #161719;
-}
-body #terminal {
-  color: #c5c8c6;
-}
-body #user {
-  color: #87c38a;
-}
-body #dir {
-  color: #85befd;
-}
-body .Typewriter__cursor {
-  color: #c5c8c6;
-}
-a {
-  color: #c5c8c6;
-}
-    </style>
+</script>
 </head>
 <body>
+<main class="term">
+  <h1 class="sr-only">Denis Usosky, PhD — CCUS researcher and chemist</h1>
 
-    <div id="content">
+  <!--
+    The terminal session, top to bottom. Each <section class="step"> is one command:
+      .cmd = the command that gets typed out
+      .out = what it prints
+    Edit the text freely; keep the tags.
+  -->
 
-		<span id="ps1_test"></span> <span id="cd2"></span> <br>
-		
-		<span id="std_out_baner"></span> <br>
-		
-        <span id="ps1_01"></span> <span id="cd"></span> <br>
-		<span id="std_out_01"></span> <br>
-		
-        <span id="ps1_02"></span> <span id="cat"></span> <br>
-        
-		<span id="ps1_in1"></span> <span id="cat2"></span> <br>
-		<span id="std_in1"></span> <br>
-        
-        
-        <span id="ps1_04"></span>
+  <section class="step">
+    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">banner</span></p>
+<pre class="out banner" role="img" aria-label="Let's Do Science">
+   __      _   _         ___        __      _
+  / /  ___| |_( )__     /   \___   / _\ ___(_) ___ _ __   ___ ___
+ / /  / _ \ __|/ __|   / /\ / _ \  \ \ / __| |/ _ \ '_ \ / __/ _ \
+/ /__|  __/ |_ \__ \  / /_// (_) | _\ \ (__| |  __/ | | | (_|  __/
+\____/\___|\__||___/ /___,' \___/  \__/\___|_|\___|_| |_|\___\___|</pre>
+  </section>
 
-        <script type="text/javascript">
-            async function typewriter(text, elementId, waitAfter) {
-                var n = 0,
-                    isTag = false
-                addText = "";
-                const el = document.getElementById(elementId);
-
-                const wait = () => new Promise(r => setTimeout(r, waitAfter));
-                const nowait = () => new Promise(r => r());
-
-                const render = () => el.innerHTML = (text.slice(0, n + 1) + addText);
-
-                const cursor = document.createElement('span');
-                cursor.id = "blink";
-
-                el.style.setProperty("--cursor-visibility", "visible");
-                while (n < text.length) {
-                    if (text.charAt(n + 1) === "<") isTag = true;
-                    if (text.charAt(n + 1) === ">") isTag = false;
-
-                    if (isTag) {
-                        n++;
-                        continue;
-                    }
-
-                    requestAnimationFrame(render);
-
-                    if (waitAfter === 0) {
-                        await nowait();
-                    } else {
-                        await wait();
-                    }
-
-                    n++;
-                }
-                el.style.setProperty("--cursor-visibility", "collapse");
-            }
-
-            function parseDelay(d) {
-                const parsed = parseInt(d, 10);
-                if (isNaN(parsed)) return 0;
-                return parsed;
-            }
-
-            const ps1Delay = parseDelay("0"),
-                stdoutDelay = parseDelay("0"),
-                commandDelay = parseDelay("30");
-            const typeeffetct = async () => {
-                
-				await typewriter("\u003cstrong\u003e\u003cspan id=\u0027user\u0027\u003evisitor@terminal.usosky\u003c\/span\u003e\u003cspan id=\u0027terminal\u0027\u003e:\u003c\/span\u003e\u003cspan id=\u0027dir\u0027\u003e~\/\u003c\/span\u003e\u003c\/strong\u003e\u003cspan id=\u0027terminal\u0027\u003e$\u003c\/span\u003e", "ps1_test", ps1Delay); await typewriter("\u003cspan id=\u0027terminal\u0027\u003ebanner\u003c\/span\u003e", "cd2", commandDelay);
-await typewriter(`
-<pre style="font-family: Inconsolata, monospace; color: white; white-space: pre; margin: 0;">
-    __      _            ___        __      _                     
-   / /  ___| |_ ___     /   \\___   / _\\ ___(_) ___ _ __   ___ ___ 
-  / /  / _ | __/ __|   / /\\ / _ \\  \\ \\ / __| |/ _ | '_ \\ / __/ _ \\
- / /__|  __| |_\\__ \\  / /_/| (_) | _\\ | (__| |  __| | | | (_|  __/
-/____/ \\___|\\__|___/ /___,' \\___/  \\__/\\___|_|\\___|_| |_|\\___\\___| 
-</pre>
-`, "std_out_baner", stdoutDelay);
-
-                await typewriter("\u003cstrong\u003e\u003cspan id=\u0027user\u0027\u003evisitor@terminal.usosky\u003c\/span\u003e\u003cspan id=\u0027terminal\u0027\u003e:\u003c\/span\u003e\u003cspan id=\u0027dir\u0027\u003e~\/\u003c\/span\u003e\u003c\/strong\u003e\u003cspan id=\u0027terminal\u0027\u003e$\u003c\/span\u003e", "ps1_01", ps1Delay); await typewriter("\u003cspan id=\u0027terminal\u0027\u003ecat welcome.txt\u003c\/span\u003e", "cd", commandDelay);
-				
-				await typewriter("\u003cspan id=\u0027terminal\u0027\u003e  Welcome to my terminal portfolio! \u003cbr\u003e I am Dr. \u003cstrong\u003eDenis Usosky\u003c\/strong\u003e, CCUS Researcher, Chemist, and Open-Source Enthusiast.\u003cbr\u003e On this page, you can find my information. \u003cbr\u003e Open to research collaborations - feel free to reach out. \u003cbr\u003e  \n  \u003c\/span\u003e", "std_out_01", stdoutDelay);
-				
-                await typewriter("\u003cstrong\u003e\u003cspan id=\u0027user\u0027\u003evisitor@terminal.usosky\u003c\/span\u003e\u003cspan id=\u0027terminal\u0027\u003e:\u003c\/span\u003e\u003cspan id=\u0027dir\u0027\u003e~\/\u003c\/span\u003e\u003c\/strong\u003e\u003cspan id=\u0027terminal\u0027\u003e$\u003c\/span\u003e", "ps1_02", ps1Delay); await typewriter("\u003cspan id=terminal\u003ecd about\u003c\/span\u003e", "cat", commandDelay);
-
-				
-				
-				await typewriter("\u003cstrong\u003e\u003cspan id=\u0027user\u0027\u003evisitor@terminal.usosky\u003c\/span\u003e\u003cspan id=\u0027terminal\u0027\u003e:\u003c\/span\u003e\u003cspan id=\u0027dir\u0027\u003e~\/about\u003c\/span\u003e\u003c\/strong\u003e\u003cspan id=\u0027terminal\u0027\u003e$\u003c\/span\u003e", "ps1_in1", ps1Delay); await typewriter("\u003cspan id=terminal\u003ecat aboutme.txt\u003c\/span\u003e", "cat2", commandDelay);
-                
-await typewriter(`
-<pre style="font-family: Inconsolata, monospace; color: #c5c8c6; white-space: pre; margin: 0;">
-
-             @@@@@@@@@@@@@                  
-        @@@@               @@@@             
-      @@                       @@           💼 Summary display:
-    @@                           @@         -----------
-  @@                               @@       📌 ABOUT
- @@                         @@@     @@      😎 Denis Usosky
-@@        @@@                        @@     🎓 <a href="https://scholar.google.com/citations?user=mvp4SJ4AAAAJ&hl=en&authuser=2&oi=ao" target="_blank">GoogleScholar</a>
-@@                                   @@     🆔 <a href="https://orcid.org/0000-0002-6245-5110" target="_blank">Orcid</a>
-@@             .@@@@@@@@@@.          @@     -----------
- @@           @@          @@        @@      📌 CONTACT
-  @@           @@        @@        @@       📩 <a href="mailto:portfolio.false961@passmail.net">Email</a>
-   @@             @@@@@@          @@        🌐 <a href="https://www.linkedin.com/in/denisusosky/" target="_blank">LinkedIn</a>
-     @@@                        @@@         🗨️ <a href="https://matrix.to/#/@usosky:matrix.org" target="_blank">Matrix</a>
-        @@@                  @@@ @@         
-         @|  @@@@@@@@@@@@@@@@   @@          
-         @|                      @@`,
-    "std_in1", 
-    stdoutDelay, 
-    { color: "white" }
-);
-				
-
-                await typewriter("\u003cstrong\u003e\u003cspan id=\u0027user\u0027\u003evisitor@terminal.usosky\u003c\/span\u003e\u003cspan id=\u0027terminal\u0027\u003e:\u003c\/span\u003e\u003cspan id=\u0027dir\u0027\u003e~\/about\u003c\/span\u003e\u003c\/strong\u003e\u003cspan id=\u0027terminal\u0027\u003e$\u003c\/span\u003e", "ps1_04", ps1Delay);
-                return;
-            }
-
-            typeeffetct()
-        </script>
+  <section class="step">
+    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cat welcome.txt</span></p>
+    <div class="out">
+      <p>Welcome to my terminal portfolio!</p>
+      <p>I am Dr. <strong>Denis Usosky</strong>, CCUS Researcher, Chemist, and Open-Source Enthusiast.</p>
+      <p>On this page, you can find my information.</p>
+      <p>Open to research collaborations - feel free to reach out.</p>
     </div>
+  </section>
+
+  <section class="step">
+    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/</span></b>$</span> <span class="cmd">cd about</span></p>
+  </section>
+
+  <section class="step">
+    <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/about</span></b>$</span> <span class="cmd">cat aboutme.txt</span></p>
+    <div class="out about">
+<pre class="face" role="img" aria-label="ASCII smiley face">
+             @@@@@@@@@@@@@
+        @@@@               @@@@
+      @@                       @@
+    @@                           @@
+  @@                               @@
+ @@                         @@@     @@
+@@        @@@                        @@
+@@                                   @@
+@@             .@@@@@@@@@@.          @@
+ @@           @@          @@        @@
+  @@           @@        @@        @@
+   @@             @@@@@@          @@
+     @@@                        @@@
+        @@@                  @@@ @@
+         @|  @@@@@@@@@@@@@@@@   @@
+         @|                      @@</pre>
+      <div class="card">
+        <p>💼 Summary display:</p>
+        <p aria-hidden="true">-----------</p>
+        <h2>📌 ABOUT</h2>
+        <ul>
+          <li>😎 Denis Usosky</li>
+          <li>🎓 <a href="https://scholar.google.com/citations?user=mvp4SJ4AAAAJ&amp;hl=en" target="_blank" rel="noopener">GoogleScholar</a></li>
+          <li>🆔 <a href="https://orcid.org/0000-0002-6245-5110" target="_blank" rel="noopener">Orcid</a></li>
+        </ul>
+        <p aria-hidden="true">-----------</p>
+        <h2>📌 CONTACT</h2>
+        <ul>
+          <li>📩 <a href="mailto:portfolio.false961@passmail.net">Email</a></li>
+          <li>🌐 <a href="https://www.linkedin.com/in/denisusosky/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li>🗨️ <a href="https://matrix.to/#/@usosky:matrix.org" target="_blank" rel="noopener">Matrix</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="line prompt-end"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/about</span></b>$</span> <span class="cursor" aria-hidden="true"></span></p>
+</main>
 </body>
 </html>
