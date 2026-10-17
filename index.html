@@ -36,8 +36,16 @@
   // js/terminal.js turns the content below into tabs with a live prompt. If it never runs, show the plain version.
   document.documentElement.classList.add('js');
   setTimeout(function () { if (!window.termStarted) document.documentElement.classList.remove('js'); }, 3000);
+  // colour theme and CRT mode a visitor picked earlier (commands: theme, crt)
+  try {
+    var savedTheme = localStorage.getItem('usosky-theme');
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    if (localStorage.getItem('usosky-crt') === 'on') document.documentElement.classList.add('crt');
+  } catch (e) { /* storage blocked */ }
 </script>
 <script src="js/terminal.js" defer></script>
+<script src="js/face.js" defer></script>
+<script src="js/extras.js" defer></script>
 
 <script type="application/ld+json">
 {
@@ -157,8 +165,14 @@
           <li data-date="2024" data-tag="AWARD">KT&amp;G Scholarship</li>
           <li data-date="2024-08" data-tag="EDU">PhD at UST / KIST School: thermodynamic modeling and distillation design for CO2-hydrogenated formic acid</li>
           <li data-date="2025-06" data-tag="JOB">R&amp;D Scientist at TriMass, Seoul: carbon-negative cement and green methanol</li>
+          <li data-date="2025-12-02" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7401436150575665152/">Recognised by the Proton Localization Community for volunteer translation</a></li>
           <li data-date="2026-01" data-tag="JOB">MSCA Postdoctoral Fellow (AuSpire) at IDOM, Bilbao, with Aurecon, Melbourne</li>
-          <li data-date="2026-08" data-tag="PUB">J. Environ. Chem. Eng.: <a href="https://doi.org/10.1016/j.jece.2026.123204">thermodynamically guided formic acid recovery in reactive CO2 capture-conversion</a></li>
+          <li data-date="2026-01-26" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7421483067657146368/">AuSpire's MSCA COFUND call, incl. the IDOM-PF2 fellowship on iron and steel decarbonisation</a></li>
+          <li data-date="2026-04-01" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7445109673311006720/">MSCA COFUND fellows' networking event at the Instituto de Salud Carlos III</a></li>
+          <li data-date="2026-05" data-tag="PUB">J. Environ. Chem. Eng.: <a href="https://doi.org/10.1016/j.jece.2026.123204">thermodynamically guided formic acid recovery in reactive CO2 capture-conversion</a></li>
+          <li data-date="2026-05-19" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7462405138817675264/">First AuSpire Annual Event in Barcelona, representing IDOM</a></li>
+          <li data-date="2026-06-25" data-tag="NEWS"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7475855514464337920/">AuSpire spotlight on my project, Advanced Modules for Carbon or Effluents Capture</a></li>
+          <li data-date="2026-09-24" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7508670214813696000/">Back at TriMass in Seoul: where steel and cement decarbonisation is heading</a></li>
           <li data-date="2026" data-tag="PUB">ChemRxiv preprint: direct air, ocean-based and post-combustion CO2 capture compared as eSAF feedstock</li>
           <li data-date="2026-10-16" data-tag="NEWS">This site gets tabs, a live prompt, this log and a publication list</li>
           <!-- sync:activity (new publications are added above this line automatically) -->
@@ -207,7 +221,12 @@
   <a class="win" href="#about">0:about</a>
   <a class="win" href="#activity">1:activity</a>
   <a class="win" href="#pubs">2:pubs</a>
-  <span class="status-right"><span class="host">"terminal.usosky"</span> <span class="clock" title="Local time in Bilbao, Spain"></span></span>
+  <span class="status-right">
+    <!-- weekly Mauna Loa CO2 reading, written by tools/update_co2.py -->
+    <span class="co2"></span>
+    <span class="host">"terminal.usosky"</span>
+    <span class="clock" title="Local time and weather in Bilbao, Spain"><span class="clock-time"></span> <span class="weather"></span> <span class="clock-date"></span></span>
+  </span>
 </nav>
 </body>
 </html>

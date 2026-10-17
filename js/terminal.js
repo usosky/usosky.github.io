@@ -73,15 +73,11 @@
   let histPos = 0;
   let draft = '';
   let prefixTimer = null;
+  let inView = false;         // a window's replay is printing (extras may decorate it)
+  const hooks = {};           // filled in by js/extras.js: boot(), decorate(node)
+  const toys = [];            // extra commands listed by `help`
 
   const sleep = (ms) => (fast || reduceMotion ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
-
-  try {
-    init();
-  } catch (err) {
-    console.error(err);
-    fallBack();
-  }
 
   function fallBack() {
     root.classList.remove('js'); // show the plain version
@@ -124,7 +120,53 @@
     addEventListener('popstate', onHistory);
     addEventListener('hashchange', onHistory);
 
-    showView(viewFromHash());
+    // the small API js/face.js and js/extras.js build on
+    window.usosky = {
+      el,
+      emit,
+      say,
+      fail,
+      clone,
+      sleep: (ms) => sleep(ms),
+      stream: (nodes, id, delay) => stream(nodes, id, delay),
+      note: (text) => emit(el('p', 'comment', `# ${text}`)),
+      clear: () => { screen.textContent = ''; },
+      command(name, fn, help) {
+        COMMANDS[name] = fn;
+        if (help) toys.push(name);
+      },
+      hooks,
+      go,
+      showView,
+      data: () => ({ SRC, LOG, PAPERS, PROCEEDINGS, LINKS }),
+      input: () => inputEl,
+      get busy() { return busy; },
+      get fast() { return fast; },
+      get id() { return runId; },
+      get view() { return currentView; },
+    };
+
+    // start once every deferred script has run, so extras can hook in first
+    let started = false;
+    const start = async () => {
+      if (started) return;
+      started = true;
+      const name = viewFromHash();
+      busy = true;
+      if (hooks.boot && name === 'about') {
+        try {
+          await hooks.boot();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      showView(name, { fast });
+    };
+    if (document.readyState === 'complete') start();
+    else {
+      addEventListener('DOMContentLoaded', start, { once: true });
+      addEventListener('load', start, { once: true });
+    }
   }
 
   function readPubs(list) {
@@ -160,15 +202,17 @@
     return [`cd ~/${name}`, SHOW[name]];
   }
 
-  async function showView(name) {
+  async function showView(name, opts = {}) {
+    if (!has(VIEWS, name)) name = 'about';
     const id = ++runId;
     currentView = name;
-    fast = false;
+    fast = Boolean(opts.fast);
     busy = true;
     dropInput();
     screen.textContent = '';
     scrollTo(0, 0);
     setWin(VIEWS[name].win);
+    inView = true;
     try {
       for (const cmd of scriptFor(name)) {
         if (!(await typeCommand(cmd, id))) return;
@@ -181,6 +225,7 @@
       return;
     }
     if (id !== runId) return;
+    inView = false;
     busy = false;
     showInput({ focus: !coarse, scroll: false });
   }
@@ -247,18 +292,20 @@
     box.append(...[].concat(nodes));
     if (inputLine && inputLine.parentNode === screen) screen.insertBefore(box, inputLine);
     else screen.append(box);
+    if (inView && hooks.decorate && box.firstChild) hooks.decorate(box);
     return box;
   }
   const say = (text) => emit(el('p', 'keep', text));
   const fail = (text) => { say(text); return false; };
 
   // print a list line by line
-  async function stream(nodes, id) {
+  async function stream(nodes, id, delay = LINE_MS) {
     const box = emit([]);
     for (const node of nodes) {
       if (id !== runId) return false;
       box.append(node);
-      if (!fast && !reduceMotion) await sleep(LINE_MS);
+      if (inView && hooks.decorate) hooks.decorate(node);
+      if (!fast && !reduceMotion) await sleep(delay);
     }
     return id === runId;
   }
@@ -501,8 +548,9 @@
       const grid = el('div', 'help');
       grid.append(el('p', 'wide', 'usosky-sh, version 2.0'), el('p', 'wide', ' '));
       rows.forEach(([k, v]) => grid.append(el('p', 'k', k), el('p', null, v)));
+      grid.append(el('p', 'wide k', 'pwd  whoami  date  echo  banner'));
+      if (toys.length) grid.append(el('p', 'wide', ' '), el('p', 'k', 'toys'), el('p', null, toys.join('  ')));
       grid.append(
-        el('p', 'wide k', 'pwd  whoami  date  echo  banner'),
         el('p', 'wide', ' '),
         el('p', 'wide comment', '# Tab completes names · switch tabs with the bar below, cd <dir>, or Ctrl+B then 0-2'),
       );
@@ -942,9 +990,8 @@
     if (!clockEl) return;
     const time = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
     const day = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: '2-digit', month: 'short', year: '2-digit' });
-    const t = el('span', 'clock-time');
-    const d = el('span', 'clock-date');
-    clockEl.replaceChildren(t, ' ', d);
+    const t = $('.clock-time', clockEl) || clockEl.appendChild(el('span', 'clock-time'));
+    const d = $('.clock-date', clockEl) || clockEl.appendChild(el('span', 'clock-date'));
     const tick = () => {
       const now = new Date();
       t.textContent = `Bilbao ${time.format(now)}`;
@@ -952,5 +999,12 @@
     };
     tick();
     setInterval(tick, 15000);
+  }
+
+  try {
+    init();
+  } catch (err) {
+    console.error(err);
+    fallBack();
   }
 })();

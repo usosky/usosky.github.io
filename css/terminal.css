@@ -252,7 +252,7 @@ mark { background: var(--dir); color: var(--bg); }
   height: calc(var(--bar) + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
   padding: 0 var(--pad) env(safe-area-inset-bottom, 0px);
-  background: var(--user);
+  background: var(--bar-bg, var(--user));
   color: var(--bg);
   white-space: nowrap;
   overflow: hidden;
@@ -273,13 +273,87 @@ mark { background: var(--dir); color: var(--bg); }
 .tmux a.last::after { content: "-"; }
 .tmux .session { padding-right: 0.5ch; }
 .tmux .session.armed { background: var(--bg); color: var(--user); padding-left: 0.5ch; }
-.tmux .status-right { margin-left: auto; gap: 1ch; }
-@media (max-width: 599px) {
-  .tmux .host,
-  .tmux .clock-date { display: none; }
+.tmux .status-right { margin-left: auto; gap: 1.5ch; }
+/* narrower screens drop the less important parts first */
+@media (max-width: 1199px) { .tmux .host { display: none; } }
+@media (max-width: 899px) { .tmux .clock-date { display: none; } }
+@media (max-width: 699px) { .tmux .co2 { display: none; } }
+@media (max-width: 479px) { .tmux .wx-text { display: none; } }
+@media (max-width: 399px) { .tmux .session { display: none; } }
+
+/* ---------- colour themes (command: theme) ---------- */
+html[data-theme="green"] {
+  --bg: #061006; --fg: #3fdf74; --dim: #23864a; --user: #8effb1; --dir: #3fdf74; --bright: #d4ffe0;
+  --yellow: #8effb1; --aqua: #3fdf74; --purple: #8effb1; --orange: #8effb1;
 }
-@media (max-width: 399px) {
-  .tmux .session { display: none; }
+html[data-theme="amber"] {
+  --bg: #110a00; --fg: #ffb000; --dim: #9a6a00; --user: #ffd166; --dir: #ffb000; --bright: #ffe6ad;
+  --yellow: #ffd166; --aqua: #ffb000; --purple: #ffd166; --orange: #ffd166;
+}
+html[data-theme="ibm"] {
+  --bg: #000000; --fg: #aaaaaa; --dim: #777777; --user: #55ff55; --dir: #6f8fff; --bright: #ffffff;
+  --yellow: #ffff55; --aqua: #55ffff; --purple: #ff55ff; --orange: #ffaa00; --bar-bg: #00aaaa;
+}
+
+/* ---------- CRT mode (command: crt) ---------- */
+.crt body { text-shadow: 0 0 1px currentColor, 0 0 7px color-mix(in srgb, currentColor 35%, transparent); }
+.crt .tmux { text-shadow: none; }
+.crt body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.45) 100%);
+}
+
+/* links glitch for a moment on hover */
+@keyframes glitch {
+  0% { text-shadow: 2px 0 #ff5f7e, -2px 0 #4fd2ff; }
+  33% { text-shadow: -2px 0 #ff5f7e, 2px 0 #4fd2ff; }
+  66% { text-shadow: 1px 1px #ff5f7e, -1px -1px #4fd2ff; }
+  100% { text-shadow: none; }
+}
+.screen a:hover { animation: glitch 240ms steps(1, end) 1; }
+
+/* ---------- neofetch and weather: picture left, text right ---------- */
+.neo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 3ch;
+  align-items: start;
+}
+.neo .face { font-size: min(var(--fs), calc((100vw - 2 * var(--pad) - 12px) / 19.5)); }
+.neo-key { color: var(--user); }
+.swatch { display: inline-block; width: 3ch; }
+.wx-icon { color: var(--fg); }
+.wx-sun { color: var(--yellow); }
+.wx-rain,
+.wx-storm { color: var(--dir); }
+@media (max-width: 699px) {
+  .neo:not(.wx) { grid-template-columns: auto; row-gap: var(--row); }
+}
+
+.boot-ok { color: var(--user); }
+
+/* ---------- mccabe plot ---------- */
+.mt { overflow-x: auto; }
+.mt-eq { color: var(--user); }
+.mt-op { color: var(--dir); }
+.mt-q { color: var(--yellow); }
+.mt-step { color: var(--bright); }
+.mt-dim { color: var(--dim); }
+
+/* ---------- matrix rain ---------- */
+.matrix {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* ---------- plain version (no JavaScript): the source shown as one session ---------- */
@@ -304,7 +378,8 @@ mark { background: var(--dir); color: var(--bg); }
 
 @media (prefers-reduced-motion: reduce) {
   .cmd.typing::after,
-  .cursor::after { animation: none; }
+  .cursor::after,
+  .screen a:hover { animation: none; }
 }
 
 /* scrollbars, as before (Chrome, Edge, Safari) */

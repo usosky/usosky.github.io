@@ -143,6 +143,27 @@ def main(dry_run=False, works=None):
     numbers = [int(n) for n in re.findall(r'data-n="(\d+)"', papers_block)]
 
     works = fetch_all() if works is None else works
+    esc = lambda s: html.escape(s, quote=True)
+
+    # a paper already listed without a DOI (e.g. a preprint) gets its DOI link once one appears
+    linked = 0
+    for w in works:
+        if not w["doi"] or w["doi"] in known_dois or not w["title"]:
+            continue
+        for li in re.findall(r"<li data-n=[^\n]*?</li>", page):
+            if "doi.org/" in li or "data-doi=" in li:
+                continue
+            cite = re.search(r"<cite>(.*?)</cite>", li, re.S)
+            if cite and title_key(cite.group(1)) == title_key(w["title"]):
+                doi = esc(w["doi"])
+                patched = li.replace("<li ", f'<li data-doi="{doi}" ', 1)
+                patched = patched[: -len("</li>")] + f' <a href="https://doi.org/{doi}">doi:{doi}</a></li>'
+                page = page.replace(li, patched, 1)
+                known_dois.add(w["doi"])
+                linked += 1
+                print(f"~ linked an existing entry to doi:{w['doi']} ({w['title'][:60]})")
+                break
+
     new = []
     for w in works:
         if not w["doi"] or not w["title"] or not w["date"]:
@@ -153,10 +174,13 @@ def main(dry_run=False, works=None):
         new.append(w)
     new.sort(key=lambda w: tuple(w["date"] + [0, 0])[:3])
     if not new:
-        print("No new publications.")
+        if linked and not dry_run:
+            INDEX.write_text(page, encoding="utf-8")
+            print(f"index.html updated: {linked} DOI link(s) added.")
+        else:
+            print("No new publications.")
         return 0
 
-    esc = lambda s: html.escape(s, quote=True)
     n = max(numbers, default=0)
     paper_lines, log_lines = [], []
     for w in new:

@@ -1,7 +1,7 @@
-# Adds new publications linked to the ORCID iD to the site, every Monday.
-# Runs tools/sync_pubs.py and commits index.html when something was added.
-# To run it now: Actions tab → "Sync publications" → "Run workflow".
-name: Sync publications
+# Every Monday: adds new papers linked to the ORCID iD (tools/sync_pubs.py) and the
+# latest Mauna Loa CO2 reading (tools/update_co2.py), then commits index.html if it changed.
+# To run it now: Actions tab → "Weekly update" → "Run workflow".
+name: Weekly update
 
 on:
   schedule:
@@ -13,13 +13,16 @@ permissions:
   pages: write
 
 jobs:
-  sync:
+  update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Look for new publications
+      - name: New publications
         run: python3 tools/sync_pubs.py
+
+      - name: Mauna Loa CO2
+        run: python3 tools/update_co2.py
 
       - name: Commit, push and rebuild the site if index.html changed
         env:
@@ -31,6 +34,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Add new publications from ORCID/Crossref" -- index.html
+          git commit -m "Weekly update: publications and Mauna Loa CO2" -- index.html
           git push
           gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will rebuild on its own."
