@@ -1,12 +1,12 @@
 /*
   usr/usosky — toys for the terminal.
 
-  Commands: neofetch, theme, crt, weather, co2, mccabe, matrix, reboot
-  (and a couple of unlisted ones). Also: a short boot screen on the first visit
-  of a browser session, text that "decrypts" while a tab replays, and the Bilbao
-  weather and the latest Mauna Loa CO2 reading in the status bar.
-  Builds on js/terminal.js (window.usosky). Animations stay off for visitors
-  who switched on "reduce motion".
+  Commands (listed first in `help`): neofetch, weather, co2, theme, crt, matrix.
+  Unlisted: coffee, tea. Also: the theme button in the top-right corner, a short
+  boot screen on the first visit of a browser session, text that "decrypts"
+  while a tab replays, and the Bilbao weather and Mauna Loa CO2 reading in the
+  status bar. Builds on js/terminal.js (window.usosky). Animations stay off for
+  visitors who switched on "reduce motion".
 */
 (() => {
   'use strict';
@@ -23,6 +23,16 @@
   const session = store('sessionStorage');
   const cssVar = (name) => getComputedStyle(root).getPropertyValue(name).trim();
 
+  /* ================= Mauna Loa CO2 (written into index.html weekly by tools/update_co2.py) ================= */
+  const co2El = document.querySelector('.tmux .co2');
+  const co2 = co2El && co2El.dataset.ppm ? {
+    ppm: parseFloat(co2El.dataset.ppm),
+    week: co2El.dataset.week,
+    y1: parseFloat(co2El.dataset.ppm1y),
+    y10: parseFloat(co2El.dataset.ppm10y),
+  } : null;
+  if (co2El && !co2) co2El.hidden = true;
+
   /* ================= neofetch (edit these lines freely) ================= */
   const RESEARCH_SINCE = 2018;
   function neofetchLines() {
@@ -32,24 +42,25 @@
       return m ? Number(m[2]) - Number(m[1]) + 1 : 1;
     };
     const talks = PROCEEDINGS.reduce((sum, p) => sum + count(p.n), 0);
-    return [
+    const lines = [
       ['OS', 'Chemical Engineering / Thermodynamics'],
       ['Host', 'IDOM, Bilbao: MSCA Postdoctoral Fellow (AuSpire)'],
       ['Kernel', 'PhD, UST / KIST School, 2024'],
       ['Uptime', `${new Date().getFullYear() - RESEARCH_SINCE} years in research`],
       ['Packages', `${PAPERS.length} papers, ${talks} conference contributions`],
       ['Shell', 'usosky-sh 2.0'],
-      ['Resolution', 'vapor-liquid equilibria'],
-      ['CPU', 'CO2 capture and utilization'],
-      ['GPU', 'Aspen Plus, COSMO-RS, PC-SAFT, Python'],
+      ['Research', 'CO2 capture and utilization'],
+      ['Tools', 'Aspen Plus, COSMO-RS, PC-SAFT, Python'],
       ['Locale', 'Bilbao, ES (Europe/Madrid)'],
     ];
+    if (co2) lines.push(['CO2', `${co2.ppm.toFixed(1)} ppm at Mauna Loa (week of ${co2.week})`]);
+    return lines;
   }
 
   T.command('neofetch', () => {
-    const art = document.querySelector('.source .face');
-    const face = el('pre', 'face', art ? art.textContent : '');
-    face.setAttribute('aria-hidden', 'true');
+    const pic = el('div', 'neo-pic');
+    pic.setAttribute('role', 'img');
+    pic.setAttribute('aria-label', 'Portrait of Denis Usosky');
     const info = el('div', 'neo-info');
     const title = el('p');
     title.append(el('b', 'user', 'visitor'), el('b', null, '@'), el('b', 'user', 'terminal.usosky'));
@@ -60,320 +71,16 @@
       info.append(p);
     });
     const swatches = el('p', 'swatches');
-    ['--dim', '--fg', '--user', '--dir', '--yellow', '--aqua', '--purple', '--orange', '--bright'].forEach((v) => {
-      const s = el('span', 'swatch', '   ');
+    ['--dim', '--fg', '--user', '--dir', '--yellow', '--aqua', '--purple', '--orange', '--pink', '--bright'].forEach((v) => {
+      const s = el('span', 'swatch', '\u00a0\u00a0\u00a0');
       s.style.background = `var(${v})`;
       swatches.append(s);
     });
-    info.append(el('p', null, ' '), swatches);
+    info.append(el('p', null, '\u00a0'), swatches);
     const box = el('div', 'neo');
-    box.append(face, info);
+    box.append(pic, info);
     T.emit(box);
-  }, true);
-
-  /* ================= themes and CRT mode ================= */
-  const THEMES = {
-    default: 'the original colours',
-    green: 'P1 green phosphor',
-    amber: 'P3 amber phosphor',
-    ibm: 'IBM PC with VGA colours',
-  };
-  const setThemeColor = () => {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = cssVar('--bg') || '#161719';
-  };
-
-  T.command('theme', (args) => {
-    const name = (args[0] || '').toLowerCase();
-    const current = root.dataset.theme || 'default';
-    if (!name) {
-      const lines = Object.entries(THEMES).map(([k, v]) => el('p', 'keep', `${k === current ? '*' : ' '} ${k.padEnd(8)} ${v}`));
-      lines.push(el('p', 'comment', '# theme <name> switches · crt on|off adds scanlines and glow'));
-      T.emit(lines);
-      return true;
-    }
-    if (!Object.prototype.hasOwnProperty.call(THEMES, name)) return T.fail(`theme: no theme "${name}" (try: ${Object.keys(THEMES).join(', ')})`);
-    if (name === 'default') delete root.dataset.theme;
-    else root.dataset.theme = name;
-    local.set('usosky-theme', name === 'default' ? '' : name);
-    setThemeColor();
-    T.note(`theme ${name}: ${THEMES[name]}`);
-    return true;
-  }, true);
-
-  T.command('crt', (args) => {
-    const arg = (args[0] || '').toLowerCase();
-    const on = arg === 'on' ? true : arg === 'off' ? false : !root.classList.contains('crt');
-    root.classList.toggle('crt', on);
-    local.set('usosky-crt', on ? 'on' : '');
-    T.note(on ? 'crt on: scanlines and phosphor glow (crt off to stop)' : 'crt off');
-    return true;
-  }, true);
-  setThemeColor();
-
-  /* ================= boot screen ================= */
-  const BOOT = [
-    ['usoskyBIOS v2.0', ''],
-    ['CPU: thermodynamics @ 298.15 K', 'OK'],
-    ['Memory test: 640K', 'OK'],
-    ['Loading NRTL-HOC, UNIQUAC, PC-SAFT', 'OK'],
-    ['Mounting /home/usosky', 'OK'],
-    ['Starting usosky-sh 2.0', 'OK'],
-  ];
-
-  async function boot() {
-    T.clear();
-    const lines = BOOT.map(([text, status]) => {
-      const p = el('p', 'boot-line keep', text);
-      if (status) p.append(` ${'.'.repeat(Math.max(3, 38 - text.length))} `, el('span', 'boot-ok', `[ ${status} ]`));
-      return p;
-    });
-    await T.stream(lines, T.id, 70);
-    await T.sleep(350);
-    T.clear();
-  }
-
-  // first visit of this browser session: boot before the about window
-  T.hooks.boot = async () => {
-    if (reduceMotion || session.get('usosky-booted')) return;
-    session.set('usosky-booted', '1');
-    await boot();
-  };
-
-  T.command('reboot', async () => {
-    await boot();
-    if (location.hash !== '#about') history.pushState(null, '', '#about');
-    T.showView('about', { fast: T.fast });
-  }, true);
-
-  /* ================= text that decrypts while a tab replays ================= */
-  const GLYPHS = '!<>-_\\/[]{}=+*^?#%&01';
-  const jobs = new Set();
-  let rafId = 0;
-
-  T.hooks.decorate = (node) => {
-    if (reduceMotion || T.fast) return;
-    const texts = [];
-    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
-      acceptNode: (t) => (!t.nodeValue.trim() || t.parentElement.closest('pre, .ps1') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
-    });
-    while (walker.nextNode()) texts.push({ node: walker.currentNode, text: walker.currentNode.nodeValue });
-    if (!texts.length) return;
-    jobs.add({ texts, start: performance.now(), duration: 420 });
-    if (!rafId) rafId = requestAnimationFrame(tick);
-  };
-
-  function tick(now) {
-    rafId = 0;
-    jobs.forEach((job) => {
-      const p = (now - job.start) / job.duration;
-      const done = p >= 1 || T.fast || !job.texts[0].node.isConnected;
-      job.texts.forEach(({ node, text }) => {
-        if (done) { node.nodeValue = text; return; }
-        let out = '';
-        for (let i = 0; i < text.length; i++) {
-          const ch = text[i];
-          const keep = ch === ' ' || ch.charCodeAt(0) > 126 || i / text.length < p;
-          out += keep ? ch : GLYPHS[(Math.random() * GLYPHS.length) | 0];
-        }
-        node.nodeValue = out;
-      });
-      if (done) jobs.delete(job);
-    });
-    if (jobs.size) rafId = requestAnimationFrame(tick);
-  }
-
-  /* ================= mccabe: McCabe–Thiele for a binary column ================= */
-  function mccabe(o) {
-    const { alpha: a, xd, xb, zf, q } = o;
-    const yEq = (x) => (a * x) / (1 + (a - 1) * x);
-    const xEq = (y) => y / (a - (a - 1) * y);
-    const isSatLiquid = Math.abs(q - 1) < 1e-9;
-    const qLine = (x) => (q / (q - 1)) * x - zf / (q - 1);
-    // pinch: q-line meets the equilibrium curve
-    let xp = zf;
-    if (!isSatLiquid) {
-      let lo = q > 1 ? zf : 0;
-      let hi = q > 1 ? 1 : zf;
-      for (let i = 0; i < 80; i++) {
-        const mid = (lo + hi) / 2;
-        const f = yEq(mid) - qLine(mid);
-        if ((f > 0) === (q > 1)) lo = mid; else hi = mid;
-      }
-      xp = (lo + hi) / 2;
-    }
-    const yp = yEq(xp);
-    const rmin = (xd - yp) / (yp - xp);
-    const r = o.r != null ? o.r : o.factor * rmin;
-    const rect = (x) => (r / (r + 1)) * x + xd / (r + 1);
-    const xi = isSatLiquid ? zf : (xd / (r + 1) + zf / (q - 1)) / (q / (q - 1) - r / (r + 1));
-    const yi = rect(xi);
-    const slope = (yi - xb) / (xi - xb);
-    const strip = (x) => xb + slope * (x - xb);
-    const steps = [];
-    let x = xd;
-    let y = xd;
-    let feed = 0;
-    while (steps.length < 60) {
-      const x2 = xEq(y);
-      const step = { x, y, x2, y2: null };
-      steps.push(step);
-      if (x2 <= xb) break;
-      const rectifying = x2 > xi;
-      if (!rectifying && !feed) feed = steps.length;
-      step.y2 = rectifying ? rect(x2) : strip(x2);
-      x = x2;
-      y = step.y2;
-    }
-    const nmin = Math.log((xd / (1 - xd)) * ((1 - xb) / xb)) / Math.log(a);
-    return { yEq, xEq, rect, strip, rmin, r, xi, yi, steps, feed: feed || steps.length, nmin };
-  }
-
-  function mccabePlot(o, res) {
-    // as wide as the screen allows (31-65 columns), roughly square on screen
-    const fs = parseFloat(getComputedStyle(root).fontSize) || 16;
-    const screenEl = document.querySelector('.screen');
-    const avail = Math.floor((screenEl ? screenEl.clientWidth : innerWidth) / (fs * 0.5)) - 6;
-    const W = Math.max(31, Math.min(65, avail));
-    const H = Math.max(15, Math.round((W * 0.5) / 1.04));
-    const grid = Array.from({ length: H }, () => Array.from({ length: W }, () => [' ', '']));
-    const col = (x) => Math.round(Math.max(0, Math.min(1, x)) * (W - 1));
-    const row = (y) => Math.round((1 - Math.max(0, Math.min(1, y))) * (H - 1));
-    const put = (x, y, ch, cls) => { grid[row(y)][col(x)] = [ch, cls]; };
-    const line = (x1, y1, x2, y2, ch, cls) => {
-      const n = Math.max(Math.abs(col(x2) - col(x1)), Math.abs(row(y2) - row(y1)), 1) * 2;
-      for (let i = 0; i <= n; i++) put(x1 + ((x2 - x1) * i) / n, y1 + ((y2 - y1) * i) / n, ch, cls);
-    };
-    line(0, 0, 1, 1, '.', 'mt-dim');
-    for (let i = 0; i <= 400; i++) put(i / 400, res.yEq(i / 400), '*', 'mt-eq');
-    line(o.xb, o.xb, res.xi, res.yi, ':', 'mt-op');
-    line(res.xi, res.yi, o.xd, o.xd, ':', 'mt-op');
-    line(o.zf, o.zf, res.xi, res.yi, ':', 'mt-q');
-    res.steps.forEach((s) => {
-      line(s.x2, s.y, s.x, s.y, '-', 'mt-step');
-      if (s.y2 != null) line(s.x2, s.y, s.x2, s.y2, '|', 'mt-step');
-      put(s.x2, s.y, '+', 'mt-step');
-    });
-    const pre = el('pre', 'mt');
-    const add = (text, cls) => pre.append(cls ? el('span', cls, text) : text);
-    grid.forEach((cells, r) => {
-      add(r === 0 ? '1.0 |' : r === H - 1 ? '  0 |' : r === Math.floor(H / 2) ? ' y  |' : '    |', 'mt-dim');
-      let run = '';
-      let runCls = null;
-      cells.forEach(([ch, cls]) => {
-        if (cls !== runCls) { if (run) add(run, runCls); run = ''; runCls = cls; }
-        run += ch;
-      });
-      if (run) add(run, runCls);
-      add('\n');
-    });
-    add(`    +${'-'.repeat(W)}\n`, 'mt-dim');
-    add(`     0${' '.repeat(Math.floor(W / 2) - 2)}x${' '.repeat(W - Math.floor(W / 2) - 3)}1`, 'mt-dim');
-    return pre;
-  }
-
-  T.command('mccabe', (args) => {
-    const o = { alpha: 2.5, xd: 0.95, xb: 0.05, zf: 0.5, q: 1, factor: 1.5, r: null };
-    const keys = { '--alpha': 'alpha', '-a': 'alpha', '--xd': 'xd', '--xb': 'xb', '--zf': 'zf', '--q': 'q', '--r': 'r', '--factor': 'factor' };
-    for (let i = 0; i < args.length; i++) {
-      const [flag, inline] = args[i].split('=');
-      if (keys[flag]) o[keys[flag]] = parseFloat(inline != null ? inline : args[++i]);
-      else if (/^[\d.]+$/.test(args[i])) o.alpha = parseFloat(args[i]);
-    }
-    const bad = [o.alpha, o.xd, o.xb, o.zf, o.q, o.factor].some((v) => !Number.isFinite(v)) || (o.r != null && !Number.isFinite(o.r));
-    if (bad || o.alpha <= 1 || !(o.xb > 0 && o.xb < o.zf && o.zf < o.xd && o.xd < 1)) {
-      return T.fail('usage: mccabe [--alpha 2.5] [--xd 0.95] [--xb 0.05] [--zf 0.5] [--q 1] [--r R | --factor 1.5]  (alpha > 1, 0 < xb < zf < xd < 1)');
-    }
-    const res = mccabe(o);
-    if (!(res.r > res.rmin)) return T.fail(`mccabe: R = ${res.r.toFixed(2)} is not above Rmin = ${res.rmin.toFixed(2)}: the column would need infinite stages`);
-    const f = (v) => (Math.round(v * 100) / 100).toString();
-    const qText = Math.abs(o.q - 1) < 1e-9 ? 'saturated liquid feed' : `q = ${f(o.q)}`;
-    const head = el('p', 'keep', `McCabe–Thiele · α = ${f(o.alpha)} · xD = ${f(o.xd)} · xB = ${f(o.xb)} · zF = ${f(o.zf)} · ${qText}`);
-    const summary = [
-      el('p', 'keep', `Rmin = ${f(res.rmin)}   R = ${f(res.r)}${o.r == null ? ` (${f(o.factor)} × Rmin)` : ''}   Nmin (Fenske) = ${f(res.nmin)}`),
-      el('p', 'keep', `${res.steps.length} theoretical stages incl. the reboiler · feed on stage ${res.feed}`),
-      el('p', 'comment', '# * equilibrium  : operating lines  -| stages · try mccabe --alpha 1.6'),
-    ];
-    T.emit([head, el('p', null, ' '), mccabePlot(o, res), el('p', null, ' '), ...summary]);
-    return true;
-  }, true);
-
-  /* ================= matrix: molecules raining down ================= */
-  const MOLECULES = ['CO2', 'H2O', 'CH4', 'N2', 'O2', 'H2', 'NH3', 'HCOOH', 'CH3OH', 'MEA', 'K2CO3', 'CaCO3', 'CaO', 'NaOH', 'PZ', 'DAC', 'eSAF', 'VLE'];
-
-  T.command('matrix', () => new Promise((resolve) => {
-    if (reduceMotion) { T.say('matrix: off while "reduce motion" is switched on'); resolve(false); return; }
-    const canvas = el('canvas', 'matrix');
-    canvas.setAttribute('aria-hidden', 'true');
-    document.body.append(canvas);
-    const ctx = canvas.getContext('2d');
-    const size = 16;
-    const head = cssVar('--bright') || '#fff';
-    const body = cssVar('--user') || '#87c38a';
-    const bg = cssVar('--bg') || '#161719';
-    let drops = [];
-    let w = 0;
-    let h = 0;
-    const pick = () => MOLECULES[(Math.random() * MOLECULES.length) | 0];
-    const fit = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      w = innerWidth;
-      h = innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, w, h);
-      drops = Array.from({ length: Math.ceil(w / (size * 0.7)) }, () => ({ y: -Math.random() * (h / size), word: pick(), i: 0 }));
-    };
-    fit();
-    ctx.font = `${size}px Inconsolata, monospace`;
-    let last = 0;
-    let frame = 0;
-    const draw = (now) => {
-      frame = requestAnimationFrame(draw);
-      if (now - last < 55) return;
-      last = now;
-      ctx.fillStyle = `${bg}26`;
-      ctx.fillRect(0, 0, w, h);
-      ctx.font = `${size}px Inconsolata, monospace`;
-      drops.forEach((d, c) => {
-        const ch = d.word[d.i % d.word.length];
-        ctx.fillStyle = Math.random() < 0.1 ? head : body;
-        ctx.fillText(ch, c * size * 0.7, d.y * size);
-        d.y += 1;
-        d.i += 1;
-        if (d.y * size > h && Math.random() > 0.96) {
-          d.y = 0;
-          d.word = pick();
-          d.i = 0;
-        }
-      });
-    };
-    frame = requestAnimationFrame(draw);
-    const stop = () => {
-      cancelAnimationFrame(frame);
-      canvas.remove();
-      removeEventListener('keydown', stop, true);
-      removeEventListener('pointerdown', stop, true);
-      removeEventListener('resize', fit);
-      clearTimeout(timer);
-      T.note('back in the terminal. Press any key to leave the rain early next time');
-      resolve(true);
-    };
-    const timer = setTimeout(stop, 9000);
-    setTimeout(() => {
-      addEventListener('keydown', stop, true);
-      addEventListener('pointerdown', stop, true);
-    }, 300);
-    addEventListener('resize', fit);
-  }), true);
-
-  /* ================= unlisted ================= */
-  T.command('coffee', () => {
-    T.emit([el('p', null, "HTTP/1.1 418 I'm a teapot"), el('p', 'comment', '# RFC 2324. Try tea.')]);
-  });
-  T.command('tea', () => { T.say('Steeping at 85 °C for 3 minutes... done. Enjoy.'); });
+  }, ['neofetch', 'a quick profile card']);
 
   /* ================= weather (Open-Meteo, no key, no cookies) ================= */
   const WX_URL = 'https://api.open-meteo.com/v1/forecast?latitude=43.263&longitude=-2.935&current=temperature_2m,weather_code&timezone=Europe%2FMadrid';
@@ -438,7 +145,7 @@
     const info = el('div', 'neo-info');
     const at = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(wx.t));
     info.append(
-      el('p', null, ' '),
+      el('p', null, '\u00a0'),
       el('p', 'pub-title', `Bilbao, Spain: ${wx.temp}°C, ${WMO[wx.code] || `code ${wx.code}`}`),
       el('p', 'comment', `# updated ${at} local time · data: Open-Meteo`),
     );
@@ -446,17 +153,9 @@
     box.append(art, info);
     T.emit(box);
     return true;
-  }, true);
+  }, ['weather', 'the weather in Bilbao right now']);
 
-  /* ================= Mauna Loa CO2 (written into index.html weekly by tools/update_co2.py) ================= */
-  const co2El = document.querySelector('.tmux .co2');
-  const co2 = co2El && co2El.dataset.ppm ? {
-    ppm: parseFloat(co2El.dataset.ppm),
-    week: co2El.dataset.week,
-    y1: parseFloat(co2El.dataset.ppm1y),
-    y10: parseFloat(co2El.dataset.ppm10y),
-  } : null;
-
+  /* ================= co2 ================= */
   T.command('co2', () => {
     if (!co2) return T.fail('co2: no reading yet. The weekly update fills it in');
     const scale = 12.5; // ppm per #
@@ -465,18 +164,339 @@
       p.append(label.padEnd(11), el('span', cls, '#'.repeat(Math.round(v / scale))), ` ${v.toFixed(1)}`);
       return p;
     };
-    const lines = [el('p', 'keep', `Mauna Loa CO2, weekly mean, week of ${co2.week}: ${co2.ppm.toFixed(2)} ppm`), el('p', null, ' ')];
-    lines.push(bar('pre-1800', 280, 'mt-dim'));
-    if (Number.isFinite(co2.y10)) lines.push(bar('10 yrs ago', co2.y10, 'mt-op'));
-    if (Number.isFinite(co2.y1)) lines.push(bar('1 yr ago', co2.y1, 'mt-op'));
-    lines.push(bar('this week', co2.ppm, 'mt-eq'));
-    lines.push(el('p', null, ' '), el('p', 'comment', '# pre-industrial ≈ 280 ppm · source: NOAA Global Monitoring Laboratory'));
+    const lines = [el('p', 'keep', `Mauna Loa CO2, weekly mean, week of ${co2.week}: ${co2.ppm.toFixed(2)} ppm`), el('p', null, '\u00a0')];
+    lines.push(bar('pre-1800', 280, 'co2-old'));
+    if (Number.isFinite(co2.y10)) lines.push(bar('10 yrs ago', co2.y10, 'co2-past'));
+    if (Number.isFinite(co2.y1)) lines.push(bar('1 yr ago', co2.y1, 'co2-past'));
+    lines.push(bar('this week', co2.ppm, 'co2-now'));
+    lines.push(el('p', null, '\u00a0'), el('p', 'comment', '# pre-industrial ≈ 280 ppm · source: NOAA Global Monitoring Laboratory'));
     T.emit(lines);
     return true;
-  }, true);
+  }, ['co2', 'the latest Mauna Loa CO2 reading']);
 
-  // status bar: weather once the page has settled; CO2 is already in the HTML
-  if (co2El && !co2) co2El.hidden = true;
+  /* ================= themes, CRT mode and the theme button ================= */
+  const THEMES = {
+    default: 'the original colours',
+    green: 'P1 green phosphor',
+    amber: 'P3 amber phosphor',
+    ibm: 'IBM PC with VGA colours',
+  };
+  const currentTheme = () => root.dataset.theme || 'default';
+  const listeners = [];
+  const setThemeColor = () => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = cssVar('--bg') || '#161719';
+  };
+  setThemeColor(); // the theme may have been restored from an earlier visit
+
+  function applyTheme(name) {
+    if (name === 'default') delete root.dataset.theme;
+    else root.dataset.theme = name;
+    local.set('usosky-theme', name === 'default' ? '' : name);
+    setThemeColor();
+    listeners.forEach((fn) => fn());
+  }
+
+  function applyCrt(on) {
+    root.classList.toggle('crt', on);
+    local.set('usosky-crt', on ? 'on' : '');
+    listeners.forEach((fn) => fn());
+  }
+
+  T.command('theme', (args) => {
+    const name = (args[0] || '').toLowerCase();
+    if (!name) {
+      const lines = Object.entries(THEMES).map(([k, v]) => el('p', 'keep', `${k === currentTheme() ? '*' : ' '} ${k.padEnd(8)} ${v}`));
+      lines.push(el('p', 'comment', '# theme <name> switches · crt on|off adds scanlines and glow · or use the button top right'));
+      T.emit(lines);
+      return true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(THEMES, name)) return T.fail(`theme: no theme "${name}" (try: ${Object.keys(THEMES).join(', ')})`);
+    applyTheme(name);
+    T.note(`theme ${name}: ${THEMES[name]}`);
+    return true;
+  }, ['theme [name]', 'colours: default, green, amber, ibm (also the button top right)']);
+
+  T.command('crt', (args) => {
+    const arg = (args[0] || '').toLowerCase();
+    const on = arg === 'on' ? true : arg === 'off' ? false : !root.classList.contains('crt');
+    applyCrt(on);
+    T.note(on ? 'crt on: scanlines and phosphor glow (crt off to stop)' : 'crt off');
+    return true;
+  }, ['crt [on|off]', 'scanlines and phosphor glow']);
+
+  // the button in the top-right corner
+  (function themeButton() {
+    const btn = el('button', 'theme-btn');
+    btn.type = 'button';
+    btn.title = 'Colour theme';
+    btn.setAttribute('aria-label', 'Colour theme');
+    btn.setAttribute('aria-haspopup', 'menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>';
+    const menu = el('div', 'theme-menu');
+    menu.id = 'theme-menu';
+    menu.hidden = true;
+    menu.setAttribute('role', 'menu');
+    btn.setAttribute('aria-controls', menu.id);
+    menu.append(el('p', 'theme-menu-head', 'theme'));
+    const options = Object.keys(THEMES).map((name) => {
+      const opt = el('button', 'theme-opt');
+      opt.type = 'button';
+      opt.setAttribute('role', 'menuitemradio');
+      opt.dataset.theme = name;
+      opt.addEventListener('click', () => { applyTheme(name); close(); });
+      menu.append(opt);
+      return opt;
+    });
+    const crt = el('button', 'theme-opt');
+    crt.type = 'button';
+    crt.setAttribute('role', 'menuitemcheckbox');
+    crt.addEventListener('click', () => { applyCrt(!root.classList.contains('crt')); close(); });
+    menu.append(el('p', 'theme-menu-rule', '-'.repeat(12)), crt);
+
+    const sync = () => {
+      options.forEach((opt) => {
+        const on = opt.dataset.theme === currentTheme();
+        opt.textContent = `${on ? '*' : ' '} ${opt.dataset.theme}`;
+        opt.setAttribute('aria-checked', String(on));
+      });
+      const crtOn = root.classList.contains('crt');
+      crt.textContent = `[${crtOn ? 'x' : ' '}] crt`;
+      crt.setAttribute('aria-checked', String(crtOn));
+    };
+    listeners.push(sync);
+    sync();
+
+    function open() {
+      menu.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      (options.find((o) => o.dataset.theme === currentTheme()) || options[0]).focus();
+    }
+    function close(refocus) {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    }
+    btn.addEventListener('click', () => (menu.hidden ? open() : close()));
+    document.addEventListener('pointerdown', (e) => {
+      if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close();
+    });
+    menu.addEventListener('keydown', (e) => {
+      const items = [...menu.querySelectorAll('button')];
+      const i = items.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); close(true); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    });
+    document.body.append(btn, menu);
+  })();
+
+  /* ================= matrix: molecules raining down ================= */
+  const MOLECULES = ['CO2', 'H2O', 'CH4', 'N2', 'O2', 'H2', 'NH3', 'HCOOH', 'CH3OH', 'MEA', 'K2CO3', 'CaCO3', 'CaO', 'NaOH', 'PZ', 'DAC', 'eSAF', 'VLE'];
+
+  T.command('matrix', () => new Promise((resolve) => {
+    if (reduceMotion) { T.say('matrix: off while "reduce motion" is switched on'); resolve(false); return; }
+    const canvas = el('canvas', 'matrix');
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.append(canvas);
+    const ctx = canvas.getContext('2d');
+    const size = 16;
+    const head = cssVar('--bright') || '#fff';
+    const body = cssVar('--user') || '#87c38a';
+    const bg = cssVar('--bg') || '#161719';
+    let drops = [];
+    let w = 0;
+    let h = 0;
+    const pick = () => MOLECULES[(Math.random() * MOLECULES.length) | 0];
+    const fit = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = innerWidth;
+      h = innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, w, h);
+      drops = Array.from({ length: Math.ceil(w / (size * 0.7)) }, () => ({ y: -Math.random() * (h / size), word: pick(), i: 0 }));
+    };
+    fit();
+    let last = 0;
+    let frame = 0;
+    const draw = (now) => {
+      frame = requestAnimationFrame(draw);
+      if (now - last < 55) return;
+      last = now;
+      ctx.fillStyle = `${bg}26`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.font = `${size}px Inconsolata, monospace`;
+      drops.forEach((d, c) => {
+        ctx.fillStyle = Math.random() < 0.1 ? head : body;
+        ctx.fillText(d.word[d.i % d.word.length], c * size * 0.7, d.y * size);
+        d.y += 1;
+        d.i += 1;
+        if (d.y * size > h && Math.random() > 0.96) {
+          d.y = 0;
+          d.word = pick();
+          d.i = 0;
+        }
+      });
+    };
+    frame = requestAnimationFrame(draw);
+    const stop = () => {
+      cancelAnimationFrame(frame);
+      canvas.remove();
+      removeEventListener('keydown', stop, true);
+      removeEventListener('pointerdown', stop, true);
+      removeEventListener('resize', fit);
+      clearTimeout(timer);
+      T.note('back in the terminal');
+      resolve(true);
+    };
+    const timer = setTimeout(stop, 9000);
+    setTimeout(() => {
+      addEventListener('keydown', stop, true);
+      addEventListener('pointerdown', stop, true);
+    }, 300);
+    addEventListener('resize', fit);
+  }), ['matrix', 'molecules raining down (any key stops it)']);
+
+  /* ================= unlisted: coffee and tea ================= */
+  const TEAPOT = String.raw`
+             _
+          __(_)__
+      .--'       '--.
+ .--./               \    __
+( (_|   I'M A TEAPOT  |__/ /
+ \__|       418       |___/
+     \               /
+      '-._________.-'`.slice(1);
+
+  T.command('coffee', () => {
+    T.emit([
+      el('p', null, "HTTP/1.1 418 I'm a teapot"),
+      el('p', null, ' '),
+      el('pre', 'art teapot', TEAPOT),
+      el('p', null, ' '),
+      el('p', 'comment', '# RFC 2324: this server only brews tea. Try: tea'),
+    ]);
+  });
+
+  // two frames of steam, swapped while the tea brews
+  const STEAM = [
+    String.raw`
+         (  (  (
+          )  )  )
+         (  (  (`.slice(1),
+    String.raw`
+          )  )  )
+         (  (  (
+          )  )  )`.slice(1),
+  ];
+  const CUP = String.raw`
+     .-------------.
+     |             |--.
+     |     tea     |  |
+     |             |--'
+      \___________/
+   '-----------------'`.slice(1);
+
+  T.command('tea', () => new Promise((resolve) => {
+    const art = el('pre', 'art tea');
+    const steam = el('span', 'steam');
+    art.append(steam, '\n', el('span', 'cup', CUP));
+    let frame = 0;
+    const show = () => { steam.textContent = STEAM[frame % STEAM.length]; };
+    show();
+    const box = T.emit([art]);
+    let finished = false;
+    let timer = 0;
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      clearInterval(timer);
+      removeEventListener('keydown', done, true);
+      removeEventListener('pointerdown', done, true);
+      box.append(el('p', null, ' '), el('p', 'comment', '# 3 minutes at 95 °C. Enjoy.'));
+      resolve(true);
+    };
+    if (reduceMotion) { done(); return; }
+    timer = setInterval(() => {
+      frame += 1;
+      show();
+      if (frame >= 12) done();
+    }, 280);
+    // a key or a click pours it early (listening a moment later, so the Enter that ran `tea` doesn't count)
+    setTimeout(() => {
+      if (finished) return;
+      addEventListener('keydown', done, true);
+      addEventListener('pointerdown', done, true);
+    }, 50);
+  }));
+
+  /* ================= boot screen: first visit of a browser session ================= */
+  const BOOT = [
+    ['usoskyBIOS v2.0', ''],
+    ['CPU: thermodynamics @ 298.15 K', 'OK'],
+    ['Memory test: 640K', 'OK'],
+    ['Loading NRTL-HOC, UNIQUAC, PC-SAFT', 'OK'],
+    ['Mounting /home/usosky', 'OK'],
+    ['Starting usosky-sh 2.0', 'OK'],
+  ];
+
+  T.hooks.boot = async () => {
+    if (reduceMotion || session.get('usosky-booted')) return;
+    session.set('usosky-booted', '1');
+    T.clear();
+    const lines = BOOT.map(([text, status]) => {
+      const p = el('p', 'boot-line keep', text);
+      if (status) p.append(` ${'.'.repeat(Math.max(3, 38 - text.length))} `, el('span', 'boot-ok', `[ ${status} ]`));
+      return p;
+    });
+    await T.stream(lines, T.id, 70);
+    await T.sleep(350);
+    T.clear();
+  };
+
+  /* ================= text that decrypts while a tab replays ================= */
+  const GLYPHS = '!<>-_\\/[]{}=+*^?#%&01';
+  const jobs = new Set();
+  let rafId = 0;
+
+  T.hooks.decorate = (node) => {
+    if (reduceMotion || T.fast) return;
+    const texts = [];
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
+      acceptNode: (t) => (!t.nodeValue.trim() || t.parentElement.closest('pre, .ps1') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    });
+    while (walker.nextNode()) texts.push({ node: walker.currentNode, text: walker.currentNode.nodeValue });
+    if (!texts.length) return;
+    jobs.add({ texts, start: performance.now(), duration: 420 });
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  };
+
+  function tick(now) {
+    rafId = 0;
+    jobs.forEach((job) => {
+      const p = (now - job.start) / job.duration;
+      const done = p >= 1 || T.fast || !job.texts[0].node.isConnected;
+      job.texts.forEach(({ node, text }) => {
+        if (done) { node.nodeValue = text; return; }
+        let out = '';
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          const keep = ch === ' ' || ch.charCodeAt(0) > 126 || i / text.length < p;
+          out += keep ? ch : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        }
+        node.nodeValue = out;
+      });
+      if (done) jobs.delete(job);
+    });
+    if (jobs.size) rafId = requestAnimationFrame(tick);
+  }
+
+  /* ================= status bar: weather once the page has settled ================= */
   setTimeout(showWeatherInBar, 1500);
   setInterval(() => { if (!document.hidden) showWeatherInBar(); }, 30 * 60 * 1000);
 })();

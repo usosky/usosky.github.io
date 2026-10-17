@@ -21,6 +21,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import activity  # noqa: E402
+
 ORCID = "0000-0002-6245-5110"
 INDEX = Path(__file__).resolve().parent.parent / "index.html"
 USER_AGENT = "usosky.github.io publication sync (+https://github.com/usosky/usosky.github.io)"
@@ -190,22 +193,18 @@ def main(dry_run=False, works=None):
             f'<li data-n="{n}"><span class="authors">{esc(", ".join(w["authors"]))}</span>. '
             f'<cite>{esc(w["title"])}</cite>. <span class="venue">{esc(w["venue"])}</span>, '
             f'<span class="year">{w["date"][0]}</span>. <a href="https://doi.org/{doi}">doi:{doi}</a></li>')
-        log_lines.append(
+        log_lines.append((iso(w["date"]),
             f'<li data-date="{iso(w["date"])}" data-tag="PUB">{esc(w["venue"] or "New paper")}: '
-            f'<a href="https://doi.org/{doi}">{esc(w["title"])}</a></li>')
+            f'<a href="https://doi.org/{doi}">{esc(w["title"])}</a></li>'))
         print(f"+ [{n}] {iso(w['date'])} {w['venue']}: {w['title']} (doi:{w['doi']})")
 
-    def insert(text, mark, lines, before):
-        """Put lines (with the marker's indentation) just above or just below the marker line."""
-        start = text.index(mark)
-        line_start = text.rfind("\n", 0, start) + 1
-        indent = text[line_start:start]
-        block = "".join(f"{indent}{line}\n" for line in lines)
-        at = line_start if before else text.index("\n", start) + 1
-        return text[:at] + block + text[at:]
-
-    page = insert(page, PAPERS_MARK, paper_lines[::-1], before=False)  # newest first
-    page = insert(page, ACTIVITY_MARK, log_lines, before=True)
+    # papers: just below the marker, newest first
+    start = page.index(PAPERS_MARK)
+    indent = page[page.rfind("\n", 0, start) + 1:start]
+    at = page.index("\n", start) + 1
+    page = page[:at] + "".join(f"{indent}{line}\n" for line in reversed(paper_lines)) + page[at:]
+    # activity log: in date order
+    page = activity.add_lines(page, log_lines)
     if dry_run:
         print("(dry run: index.html not changed)")
     else:

@@ -147,12 +147,14 @@
       <section class="step">
         <p class="line"><span class="ps1"><b><span class="user">visitor@terminal.usosky</span>:<span class="dir">~/activity</span></b>$</span> <span class="cmd">cat activity.log</span></p>
         <!--
-          One <li> per entry, oldest first: add new entries at the bottom.
+          One <li> per entry, in date order, oldest first (the page sorts them by date anyway).
           data-date: YYYY, YYYY-MM or YYYY-MM-DD
-          data-tag:  PUB, CONF, TALK, POST, JOB, EDU, AWARD or NEWS
+          data-tag:  PUB, CONF, TALK, POST, JOB, EDU, AWARD, NEWS or CODE
+          CODE lines (public GitHub repositories) and PUB lines for new papers are added by the weekly update;
+          list repositories to leave out in data-github-skip.
           For a LinkedIn post: <li data-date="2026-11-03" data-tag="POST"><a href="https://www.linkedin.com/posts/...">one-line summary</a></li>
         -->
-        <ol class="out log" data-src="activity.log">
+        <ol class="out log" data-src="activity.log" data-github-user="usosky" data-github-skip="usosky.github.io">
           <li data-date="2018" data-tag="CONF">Graphene–CuO ammonia gas sensor at IUMRS-ICEM (Korea) and Graphene 2018 (Germany)</li>
           <li data-date="2021-11" data-tag="PUB">J. Chem. Eng. Data: <a href="https://doi.org/10.1021/acs.jced.1c00573">isobaric VLE of formic acid + NMP at 50, 20 and 10 kPa, modeled with NRTL-HOC and PC-SAFT</a></li>
           <li data-date="2022" data-tag="CONF">Formic acid + NMP phase equilibria at KSIEC Spring and the KIST Workshop (Korea)</li>
@@ -160,22 +162,19 @@
           <li data-date="2023" data-tag="CONF">1-Methylpyrrolidine + 1-butylimidazole binary system at KSIEC Spring (Korea)</li>
           <li data-date="2023" data-tag="CONF">VLE of 1-methylpyrrolidine + 1-butylimidazole at AOC-GSC8 (New Zealand)</li>
           <li data-date="2023-10" data-tag="PUB">J. Ind. Eng. Chem.: <a href="https://doi.org/10.1016/j.jiec.2023.06.030">vapor-liquid equilibria in the 1-methylpyrrolidine + 1-butylimidazole system</a></li>
+          <li data-date="2024" data-tag="AWARD">KT&amp;G Scholarship</li>
           <li data-date="2024-03" data-tag="PUB">Joule: <a href="https://doi.org/10.1016/j.joule.2024.01.003">CO2-hydrogenated formic acid, from process development to a pilot plant</a></li>
           <li data-date="2024-06" data-tag="PUB">STAR Protocols: <a href="https://doi.org/10.1016/j.xpro.2024.103093">how to operate a large-scale CO2 hydrogenation process for formic acid</a></li>
-          <li data-date="2024" data-tag="AWARD">KT&amp;G Scholarship</li>
           <li data-date="2024-08" data-tag="EDU">PhD at UST / KIST School: thermodynamic modeling and distillation design for CO2-hydrogenated formic acid</li>
           <li data-date="2025-06" data-tag="JOB">R&amp;D Scientist at TriMass, Seoul: carbon-negative cement and green methanol</li>
           <li data-date="2025-12-02" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7401436150575665152/">Recognised by the Proton Localization Community for volunteer translation</a></li>
           <li data-date="2026-01" data-tag="JOB">MSCA Postdoctoral Fellow (AuSpire) at IDOM, Bilbao, with Aurecon, Melbourne</li>
-          <li data-date="2026-01-26" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7421483067657146368/">AuSpire's MSCA COFUND call, incl. the IDOM-PF2 fellowship on iron and steel decarbonisation</a></li>
           <li data-date="2026-04-01" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7445109673311006720/">MSCA COFUND fellows' networking event at the Instituto de Salud Carlos III</a></li>
           <li data-date="2026-05" data-tag="PUB">J. Environ. Chem. Eng.: <a href="https://doi.org/10.1016/j.jece.2026.123204">thermodynamically guided formic acid recovery in reactive CO2 capture-conversion</a></li>
           <li data-date="2026-05-19" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7462405138817675264/">First AuSpire Annual Event in Barcelona, representing IDOM</a></li>
           <li data-date="2026-06-25" data-tag="NEWS"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7475855514464337920/">AuSpire spotlight on my project, Advanced Modules for Carbon or Effluents Capture</a></li>
           <li data-date="2026-09-24" data-tag="POST"><a href="https://www.linkedin.com/feed/update/urn:li:activity:7508670214813696000/">Back at TriMass in Seoul: where steel and cement decarbonisation is heading</a></li>
-          <li data-date="2026" data-tag="PUB">ChemRxiv preprint: direct air, ocean-based and post-combustion CO2 capture compared as eSAF feedstock</li>
-          <li data-date="2026-10-16" data-tag="NEWS">This site gets tabs, a live prompt, this log and a publication list</li>
-          <!-- sync:activity (new publications are added above this line automatically) -->
+          <!-- sync:activity (the weekly update adds new papers and GitHub projects here, in date order) -->
         </ol>
       </section>
     </div>
@@ -191,7 +190,6 @@
         -->
         <ol class="out pubs" data-src="papers.txt" data-sync-since="2026-09-01">
           <!-- sync:papers (new papers are added below this line automatically) -->
-          <li data-n="6"><span class="authors">Denis Usosky, Valery Novoa Colas, Ana García Algaba, Juan Alberto Martín Martín, Abdul Rahim, Aaron Belbasis, Juan Carlos Latasa López</span>. <cite>From capture to utilization: a cross-pathway comparison of next generation direct air, ocean-based, and post-combustion CO2 capture for eSAF feedstock</cite>. <span class="venue">ChemRxiv (preprint)</span>, <span class="year">2026</span>.</li>
           <li data-n="5"><span class="authors">Denis Usosky, Kwang-Deog Jung, Ung Lee, Changsoo Kim, Kyeongsu Kim</span>. <cite>Thermodynamically guided process design for formic acid recovery in reactive CO2 capture-conversion system</cite>. <span class="venue">J. Environ. Chem. Eng.</span>, <span class="year">2026</span>. <a href="https://doi.org/10.1016/j.jece.2026.123204">doi:10.1016/j.jece.2026.123204</a></li>
           <li data-n="4"><span class="authors">Changsoo Kim, Kwangho Park, Hyeonggeon Lee, Jaehyung Im, Denis Usosky, Kyungjae Tak, Damdae Park, Wonsuk Chung, Donggu Han, Jieun Yoon, Heewon Lee, Hyunyoung Kim, Margareth, Juyeong Jung, Da Hye Won, Chun-Jae Yoo, Ki Bong Lee, Kwang-Deog Jung, Ung Lee</span>. <cite>Accelerating the net-zero economy with CO2-hydrogenated formic acid production: Process development and pilot plant demonstration</cite>. <span class="venue">Joule</span>, <span class="year">2024</span>. <a href="https://doi.org/10.1016/j.joule.2024.01.003">doi:10.1016/j.joule.2024.01.003</a></li>
           <li data-n="3"><span class="authors">Jihoon Bae, Kwangho Park, Denis Usosky, Kwang-Deog Jung, Ung Lee, Changsoo Kim</span>. <cite>Protocol to operate a large-scale CO2 hydrogenation process for formic acid production</cite>. <span class="venue">STAR Protocols</span>, <span class="year">2024</span>. <a href="https://doi.org/10.1016/j.xpro.2024.103093">doi:10.1016/j.xpro.2024.103093</a></li>

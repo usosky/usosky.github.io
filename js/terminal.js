@@ -97,6 +97,12 @@
       html: li.innerHTML.trim(),
       text: squash(`${li.dataset.date || ''} [${li.dataset.tag || ''}] ${li.textContent}`),
     }));
+    // oldest first, whatever order the lines are in ('2024' sorts before '2024-03')
+    const dateKey = (d) => {
+      const [y = '0', m = '0', day = '0'] = d.split('-');
+      return `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    };
+    LOG.sort((a, b) => (dateKey(a.date) < dateKey(b.date) ? -1 : dateKey(a.date) > dateKey(b.date) ? 1 : 0));
     PAPERS = readPubs(SRC['papers.txt']);
     PROCEEDINGS = readPubs(SRC['proceedings.txt']);
     LINKS = {};
@@ -131,9 +137,10 @@
       stream: (nodes, id, delay) => stream(nodes, id, delay),
       note: (text) => emit(el('p', 'comment', `# ${text}`)),
       clear: () => { screen.textContent = ''; },
+      // help: [usage, description] puts the command in the first section of `help`
       command(name, fn, help) {
         COMMANDS[name] = fn;
-        if (help) toys.push(name);
+        if (help) toys.push(help);
       },
       hooks,
       go,
@@ -547,9 +554,14 @@
       ];
       const grid = el('div', 'help');
       grid.append(el('p', 'wide', 'usosky-sh, version 2.0'), el('p', 'wide', ' '));
+      if (toys.length) {
+        grid.append(el('p', 'wide help-head', 'fun'));
+        toys.forEach(([k, v]) => grid.append(el('p', 'k', k), el('p', null, v)));
+        grid.append(el('p', 'wide', ' '));
+      }
+      grid.append(el('p', 'wide help-head', 'files and navigation'));
       rows.forEach(([k, v]) => grid.append(el('p', 'k', k), el('p', null, v)));
-      grid.append(el('p', 'wide k', 'pwd  whoami  date  echo  banner'));
-      if (toys.length) grid.append(el('p', 'wide', ' '), el('p', 'k', 'toys'), el('p', null, toys.join('  ')));
+      grid.append(el('p', 'wide k keep', 'pwd  whoami  date  echo  banner'));
       grid.append(
         el('p', 'wide', ' '),
         el('p', 'wide comment', '# Tab completes names · switch tabs with the bar below, cd <dir>, or Ctrl+B then 0-2'),
@@ -963,7 +975,7 @@
   }
 
   function onPointerDown(e) {
-    if (busy && !e.target.closest('.tmux')) fast = true;
+    if (busy && !e.target.closest('.tmux, .theme-btn, .theme-menu')) fast = true;
   }
 
   function onScreenClick(e) {

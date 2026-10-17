@@ -30,6 +30,7 @@
   --aqua: #8abeb7;
   --purple: #b294bb;
   --orange: #de935f;
+  --pink: #e98fa6;
 
   --fs: max(13px, 3vmin);              /* phones: 3vmin as before, never below 13px */
   --lh: 1.034;                         /* line height, as before (3.1vmin / 3vmin) */
@@ -171,6 +172,7 @@ a:focus-visible { outline: 1px solid var(--dir); outline-offset: 2px; }
 .tag-award { color: var(--purple); }
 .tag-post { color: var(--orange); }
 .tag-news { color: var(--bright); }
+.tag-code { color: var(--pink); }
 
 /* ---------- publications ---------- */
 .pub + .pub { margin-top: var(--row); }
@@ -195,6 +197,7 @@ mark { background: var(--dir); color: var(--bg); }
 }
 .help .k { color: var(--bright); }
 .help .wide { grid-column: 1 / -1; }
+.help .help-head { color: var(--user); font-weight: 700; }
 .ls-dir { color: var(--dir); font-weight: 700; }
 
 /* ---------- the live prompt ---------- */
@@ -281,18 +284,75 @@ mark { background: var(--dir); color: var(--bg); }
 @media (max-width: 479px) { .tmux .wx-text { display: none; } }
 @media (max-width: 399px) { .tmux .session { display: none; } }
 
-/* ---------- colour themes (command: theme) ---------- */
+/* ---------- colour themes (command: theme, or the button top right) ---------- */
 html[data-theme="green"] {
   --bg: #061006; --fg: #3fdf74; --dim: #23864a; --user: #8effb1; --dir: #3fdf74; --bright: #d4ffe0;
-  --yellow: #8effb1; --aqua: #3fdf74; --purple: #8effb1; --orange: #8effb1;
+  --yellow: #8effb1; --aqua: #3fdf74; --purple: #8effb1; --orange: #8effb1; --pink: #8effb1;
 }
 html[data-theme="amber"] {
   --bg: #110a00; --fg: #ffb000; --dim: #9a6a00; --user: #ffd166; --dir: #ffb000; --bright: #ffe6ad;
-  --yellow: #ffd166; --aqua: #ffb000; --purple: #ffd166; --orange: #ffd166;
+  --yellow: #ffd166; --aqua: #ffb000; --purple: #ffd166; --orange: #ffd166; --pink: #ffd166;
 }
 html[data-theme="ibm"] {
   --bg: #000000; --fg: #aaaaaa; --dim: #777777; --user: #55ff55; --dir: #6f8fff; --bright: #ffffff;
-  --yellow: #ffff55; --aqua: #55ffff; --purple: #ff55ff; --orange: #ffaa00; --bar-bg: #00aaaa;
+  --yellow: #ffff55; --aqua: #55ffff; --purple: #ff55ff; --orange: #ffaa00; --pink: #ff5555; --bar-bg: #00aaaa;
+}
+
+/* ---------- theme button, top right (js/extras.js adds it) ---------- */
+:root { --tb: max(28px, 1.5rem); }
+.theme-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: var(--tb);
+  height: var(--tb);
+  padding: 0;
+  border: 1px solid var(--dim);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--dim);
+  cursor: pointer;
+}
+.theme-btn svg { width: 62%; height: 62%; }
+.theme-btn:hover,
+.theme-btn[aria-expanded="true"] { color: var(--bright); border-color: var(--bright); }
+.theme-btn:focus-visible { outline: 1px solid var(--dir); outline-offset: 2px; }
+.theme-menu {
+  position: absolute;
+  top: calc(var(--tb) + 8px);
+  right: 4px;
+  z-index: 20;
+  min-width: 13ch;
+  padding: 0.5ch 0;
+  border: 1px solid var(--dim);
+  background: var(--bg);
+}
+.theme-menu[hidden] { display: none; }
+.theme-menu-head,
+.theme-menu-rule { padding: 0 1ch; color: var(--dim); }
+.theme-opt {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 1ch;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  line-height: var(--lh);
+  text-align: left;
+  white-space: pre;
+  cursor: pointer;
+}
+.theme-opt[aria-checked="true"] { color: var(--bright); }
+.theme-opt:hover,
+.theme-opt:focus-visible { background: var(--user); color: var(--bg); outline: 0; }
+@media (pointer: coarse) {
+  .theme-opt { padding-block: 7px; }
 }
 
 /* ---------- CRT mode (command: crt) ---------- */
@@ -325,7 +385,37 @@ html[data-theme="ibm"] {
   column-gap: 3ch;
   align-items: start;
 }
-.neo .face { font-size: min(var(--fs), calc((100vw - 2 * var(--pad) - 12px) / 19.5)); }
+/* the portrait: a 64x64 stencil of the favicon photo, used as a mask and painted in the theme's colours */
+.neo-pic {
+  --portrait: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' shape-rendering='crispEdges'%3E%3Cpath d='\
+M14 2h4v1h-4zM20 2h1v1h-1zM22 2h1v1h-1zM36 2h1v1h-1zM14 3h10v1h-10zM25 3h1v1h-1zM36 3h2v1h-2z\
+M40 3h2v1h-2zM14 4h14v1h-14zM34 4h5v1h-5zM40 4h3v1h-3zM15 5h14v1h-14zM34 5h10v1h-10z\
+M15 6h16v1h-16zM32 6h13v1h-13zM49 6h1v1h-1zM15 7h30v1h-30zM49 7h4v1h-4zM16 8h39v1h-39z\
+M16 9h40v1h-40zM57 9h2v1h-2zM16 10h44v1h-44zM17 11h44v2h-44zM18 13h44v2h-44zM18 15h42v1h-42z\
+M22 16h4v1h-4zM27 16h2v1h-2zM33 16h25v1h-25zM39 17h14v1h-14zM2 18h2v1h-2zM22 18h1v1h-1z\
+M24 18h2v1h-2zM40 18h11v1h-11zM21 19h3v1h-3zM40 19h10v2h-10zM3 21h1v1h-1zM6 21h1v1h-1z\
+M33 21h2v1h-2zM41 21h8v2h-8zM58 21h1v1h-1zM2 22h3v3h-3zM27 22h1v1h-1zM33 22h4v1h-4z\
+M38 22h2v1h-2zM51 22h2v1h-2zM17 23h3v1h-3zM27 23h2v1h-2zM32 23h4v1h-4zM38 23h11v1h-11z\
+M52 23h2v1h-2zM57 23h1v1h-1zM17 24h7v1h-7zM27 24h22v1h-22zM53 24h2v1h-2zM2 25h5v1h-5z\
+M16 25h11v1h-11zM30 25h1v1h-1zM34 25h16v1h-16zM2 26h7v3h-7zM16 26h34v4h-34zM55 26h2v1h-2z\
+M52 27h10v4h-10zM3 29h6v1h-6zM3 30h4v1h-4zM17 30h34v3h-34zM5 31h3v1h-3zM52 31h9v2h-9z\
+M4 32h1v1h-1zM6 32h3v1h-3zM4 33h6v1h-6zM17 33h35v2h-35zM53 33h8v3h-8zM5 34h5v1h-5zM6 35h4v1h-4z\
+M17 35h22v1h-22zM41 35h11v1h-11zM7 36h1v1h-1zM18 36h20v2h-20zM40 36h13v1h-13zM54 36h7v1h-7z\
+M39 37h14v2h-14zM55 37h6v1h-6zM19 38h19v2h-19zM55 38h5v2h-5zM41 39h2v1h-2zM45 39h7v1h-7z\
+M20 40h19v1h-19zM42 40h3v1h-3zM47 40h4v1h-4zM54 40h5v1h-5zM20 41h26v1h-26zM54 41h3v1h-3z\
+M58 41h1v1h-1zM21 42h26v1h-26zM48 42h2v1h-2zM53 42h4v1h-4zM16 43h1v1h-1zM21 43h35v1h-35z\
+M16 44h2v1h-2zM21 44h33v1h-33zM16 45h3v1h-3zM22 45h31v1h-31zM57 45h1v2h-1zM16 46h4v1h-4z\
+M23 46h10v1h-10zM39 46h8v1h-8zM17 47h3v2h-3zM23 47h12v1h-12zM54 47h3v1h-3zM23 48h15v1h-15z\
+M52 48h5v1h-5zM18 49h2v1h-2zM24 49h16v1h-16zM51 49h5v1h-5zM19 50h1v1h-1zM25 50h16v1h-16z\
+M49 50h6v1h-6zM56 50h1v1h-1zM26 51h17v1h-17zM48 51h9v1h-9zM28 52h16v1h-16zM45 52h11v1h-11z\
+M29 53h27v1h-27zM30 54h25v1h-25zM30 55h24v1h-24zM31 56h22v1h-22zM32 57h20v1h-20zM33 58h18v1h-18z\
+M35 59h15v1h-15zM37 60h12v1h-12zM39 61h8v1h-8z'/%3E%3C/svg%3E");
+  width: 14em;   /* as tall as the 14 lines of text beside it */
+  height: 14em;
+  background: linear-gradient(var(--user), var(--dir));
+  -webkit-mask: var(--portrait) center / contain no-repeat;
+  mask: var(--portrait) center / contain no-repeat;
+}
 .neo-key { color: var(--user); }
 .swatch { display: inline-block; width: 3ch; }
 .wx-icon { color: var(--fg); }
@@ -334,17 +424,21 @@ html[data-theme="ibm"] {
 .wx-storm { color: var(--dir); }
 @media (max-width: 699px) {
   .neo:not(.wx) { grid-template-columns: auto; row-gap: var(--row); }
+  .neo-pic { width: 12em; height: 12em; }
 }
 
 .boot-ok { color: var(--user); }
 
-/* ---------- mccabe plot ---------- */
-.mt { overflow-x: auto; }
-.mt-eq { color: var(--user); }
-.mt-op { color: var(--dir); }
-.mt-q { color: var(--yellow); }
-.mt-step { color: var(--bright); }
-.mt-dim { color: var(--dim); }
+/* ---------- co2 bars ---------- */
+.co2-old { color: var(--dim); }
+.co2-past { color: var(--dir); }
+.co2-now { color: var(--user); }
+
+/* ---------- coffee and tea ---------- */
+.art { overflow-x: auto; }
+.teapot { color: var(--aqua); }
+.tea .cup { color: var(--fg); }
+.tea .steam { color: var(--dim); }
 
 /* ---------- matrix rain ---------- */
 .matrix {

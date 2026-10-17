@@ -1,5 +1,6 @@
-# Every Monday: adds new papers linked to the ORCID iD (tools/sync_pubs.py) and the
-# latest Mauna Loa CO2 reading (tools/update_co2.py), then commits index.html if it changed.
+# Every Monday: adds new papers linked to the ORCID iD (tools/sync_pubs.py), new public
+# GitHub projects (tools/sync_github.py) and the latest Mauna Loa CO2 reading
+# (tools/update_co2.py), then commits index.html if it changed.
 # To run it now: Actions tab → "Weekly update" → "Run workflow".
 name: Weekly update
 
@@ -21,6 +22,11 @@ jobs:
       - name: New publications
         run: python3 tools/sync_pubs.py
 
+      - name: New GitHub projects
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 tools/sync_github.py
+
       - name: Mauna Loa CO2
         run: python3 tools/update_co2.py
 
@@ -34,6 +40,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Weekly update: publications and Mauna Loa CO2" -- index.html
+          git commit -m "Weekly update: papers, GitHub projects, Mauna Loa CO2" -- index.html
           git push
           gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will rebuild on its own."
