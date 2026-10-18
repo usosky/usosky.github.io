@@ -410,8 +410,8 @@ M52 48h5v1h-5zM18 49h2v1h-2zM24 49h16v1h-16zM51 49h5v1h-5zM19 50h1v1h-1zM25 50h1
 M49 50h6v1h-6zM56 50h1v1h-1zM26 51h17v1h-17zM48 51h9v1h-9zM28 52h16v1h-16zM45 52h11v1h-11z\
 M29 53h27v1h-27zM30 54h25v1h-25zM30 55h24v1h-24zM31 56h22v1h-22zM32 57h20v1h-20zM33 58h18v1h-18z\
 M35 59h15v1h-15zM37 60h12v1h-12zM39 61h8v1h-8z'/%3E%3C/svg%3E");
-  width: 14em;   /* as tall as the 14 lines of text beside it */
-  height: 14em;
+  width: 13.5em;   /* as tall as the 13 lines of text beside it */
+  height: 13.5em;
   background: linear-gradient(var(--user), var(--dir));
   -webkit-mask: var(--portrait) center / contain no-repeat;
   mask: var(--portrait) center / contain no-repeat;

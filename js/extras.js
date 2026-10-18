@@ -42,19 +42,17 @@
       return m ? Number(m[2]) - Number(m[1]) + 1 : 1;
     };
     const talks = PROCEEDINGS.reduce((sum, p) => sum + count(p.n), 0);
-    const lines = [
-      ['OS', 'Chemical Engineering / Thermodynamics'],
+    return [
+      ['OS', 'Physical Chemistry / Thermodynamics / Chemical Engineering'],
       ['Host', 'IDOM, Bilbao: MSCA Postdoctoral Fellow (AuSpire)'],
       ['Kernel', 'PhD, UST / KIST School, 2024'],
-      ['Uptime', `${new Date().getFullYear() - RESEARCH_SINCE} years in research`],
+      ['Uptime', `${new Date().getFullYear() - RESEARCH_SINCE} years in R&D`],
       ['Packages', `${PAPERS.length} papers, ${talks} conference contributions`],
       ['Shell', 'usosky-sh 2.0'],
       ['Research', 'CO2 capture and utilization'],
       ['Tools', 'Aspen Plus, COSMO-RS, PC-SAFT, Python'],
       ['Locale', 'Bilbao, ES (Europe/Madrid)'],
     ];
-    if (co2) lines.push(['CO2', `${co2.ppm.toFixed(1)} ppm at Mauna Loa (week of ${co2.week})`]);
-    return lines;
   }
 
   T.command('neofetch', () => {

@@ -15,7 +15,7 @@ Plain HTML, CSS and JavaScript: no build step, GitHub Pages serves the files as 
 
   | Command | What it does |
   | --- | --- |
-  | `neofetch` | profile card: the portrait, a few facts and this week's CO2 reading |
+  | `neofetch` | profile card: the portrait and a few facts |
   | `weather` | Bilbao weather |
   | `co2` | latest Mauna Loa CO2 reading |
   | `theme default\|green\|amber\|ibm` | colour schemes, remembered per visitor (also the ◐ button top right) |
