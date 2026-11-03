@@ -96,6 +96,7 @@ To run it now, go to **Actions → Weekly update → Run workflow**. GitHub paus
 | `img/og-image.png` | 1200×630 preview image used by LinkedIn, messengers etc. |
 | `favicon.ico`, `favicon-32.png`, `favicon-96.png`, `apple-touch-icon.png` | browser-tab and home-screen icons |
 | `.nojekyll` | tells GitHub Pages to serve the files as they are |
+| `robots.txt`, `sitemap.xml` | tell search engines they may index the site, and where it is |
 
 ## Previewing locally
 

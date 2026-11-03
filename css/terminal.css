@@ -22,7 +22,7 @@
 :root {
   --bg: #161719;
   --fg: #c5c8c6;
-  --dim: #7a7e82;
+  --dim: #7e8286;                    /* 4.6:1 on --bg (WCAG AA) */
   --user: #87c38a;
   --dir: #85befd;
   --bright: #ffffff;
@@ -286,11 +286,11 @@ mark { background: var(--dir); color: var(--bg); }
 
 /* ---------- colour themes (command: theme, or the button top right) ---------- */
 html[data-theme="green"] {
-  --bg: #061006; --fg: #3fdf74; --dim: #23864a; --user: #8effb1; --dir: #3fdf74; --bright: #d4ffe0;
+  --bg: #061006; --fg: #3fdf74; --dim: #258d4e; --user: #8effb1; --dir: #3fdf74; --bright: #d4ffe0;
   --yellow: #8effb1; --aqua: #3fdf74; --purple: #8effb1; --orange: #8effb1; --pink: #8effb1;
 }
 html[data-theme="amber"] {
-  --bg: #110a00; --fg: #ffb000; --dim: #9a6a00; --user: #ffd166; --dir: #ffb000; --bright: #ffe6ad;
+  --bg: #110a00; --fg: #ffb000; --dim: #a47100; --user: #ffd166; --dir: #ffb000; --bright: #ffe6ad;
   --yellow: #ffd166; --aqua: #ffb000; --purple: #ffd166; --orange: #ffd166; --pink: #ffd166;
 }
 html[data-theme="ibm"] {
